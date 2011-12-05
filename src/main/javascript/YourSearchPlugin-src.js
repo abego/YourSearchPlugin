@@ -1,6 +1,6 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|2.1.2 (2008-03-17)|
+|''Version:''|2.1.3 (2008-04-16)|
 |''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
 |''Licence:''|[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]|
@@ -16,6 +16,8 @@ For more information see [[Help|YourSearch Help]].
 This plugin requires TiddlyWiki 2.1. 
 Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearchPlugins supporting older versions of TiddlyWiki.
 !Revision history
+* v2.1.3 (2008-04-16)
+** Fixed problem with Firefox3. Thanks to Andreas Hoefler for reporting.
 * v2.1.2 (2008-03-17)
 ** Bug: on IE (6.0) the first letter is dropped from the search string. Thanks to Kashgarinn and Nick Padfield for reporting.
 * v2.1.1 (2007-03-11)
@@ -64,10 +66,10 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 1, revision: 2,
+	major: 2, minor: 1, revision: 3,
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin",
 	licence: "[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]",
-	copyright: "Copyright (c) abego Software GmbH, 2005-2007 (www.abego-software.de)"
+	copyright: "Copyright (c) abego Software GmbH, 2005-2008 (www.abego-software.de)"
 };
 
 if (!window.abego) window.abego = {};
@@ -198,6 +200,18 @@ abego.select = function(array,test,testObj,result) {
 	return result;
 };
 
+// A portable way to "consume an event"
+// 
+// (Uses "stopPropagation" and "preventDefault", but will also "cancelBubble",
+// even though this is a "non-standard method" , just in case).
+//
+abego.consumeEvent = function(e) {
+	if (e.stopPropagation) e.stopPropagation();
+	if (e.preventDefault) e.preventDefault();
+	e.cancelBubble = true;
+	e.returnValue = true;
+};
+
 // Class abego.TiddlerFilterTerm =================================================================
 //
 // Used to check if a tiddler contains a given text.
@@ -281,7 +295,7 @@ abego.parseTiddlerFilterTerm = function(queryText,offset,options) {
 	// group 6: RegExp literal /.../
 	// group 7: scheme '://' nonSpaceChars
 	// group 8: word
-	var re = /\s*(?:(?:\{([^\}]*)\})|(?:(=)|([#%!])|(?:(\w+)\s*\:(?!\/\/))|(?:(?:("(?:(?:\\")|[^"])+")|(?:\/((?:(?:\\\/)|[^\/])+)\/)|(\w+\:\/\/[^\s]+)|([^\s\)\-\"]+)))))/mg;
+	var re = /\s*(?:(?:\{([^\}]*)\})|(?:(=)|([#%!])|(?:(\w+)\s*\:(?!\/\/))|(?:(?:("(?:(?:\\")|[^"])+")|(?:\/((?:(?:\\\/)|[^\/])+)\/)|(\w+\:\/\/[^\s]+)|([^\s\)\-\"]+)))))/mg; // " <- The syntax highlighting of my editors gets confused without this quote
 	var shortCuts = {'!':'title','%':'text','#':'tags'};
 	
 	var fieldNames = {};
@@ -642,7 +656,9 @@ merge(abego.PageWiseRenderer.prototype, {
 		var self = this;
 		var onNaviButtonClick = function(e) {
 			if (!e) var e = window.event;
-		
+
+			abego.consumeEvent(e);
+
 			var pageIndex = abego.toInt(this.getAttribute("page"),0);
 			var oldPageIndex = self.getCurrentPageIndex();
 			if (pageIndex == oldPageIndex)
@@ -1650,7 +1666,7 @@ config.macros.yourSearch = {
 		copyright: function(place) {
 			var e = createTiddlyElement(place, "a");
 			e.setAttribute("href", "http://www.abego-software.de");
-			e.innerHTML = '<font color="black" face="Arial, Helvetica, sans-serif">&copy; 2005-2006 <b><font color="red">abego</font></b> Software<font>';
+			e.innerHTML = '<font color="black" face="Arial, Helvetica, sans-serif">&copy; 2005-2008 <b><font color="red">abego</font></b> Software<font>';
 		},
 		
 		newTiddlerButton: function(place) {
@@ -2022,7 +2038,7 @@ abego.YourSearch.onShowResult = function(useOldResult) {
 //}}}
 /***
 !Licence and Copyright
-Copyright (c) abego Software ~GmbH, 2005-2006 ([[www.abego-software.de|http://www.abego-software.de]])
+Copyright (c) abego Software ~GmbH, 2005-2008 ([[www.abego-software.de|http://www.abego-software.de]])
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
