@@ -1,11 +1,11 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|2.0.0 (2006-01-16)|
+|''Version:''|2.0.1 (2006-02-05)|
 |''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
 |''Licence:''|[[BSD open source license]]|
 |''TiddlyWiki:''|2.0|
-|''Browser:''|Firefox 1.0.4+; InternetExplorer 6.0|
+|''Browser:''|Firefox 1.0.4+; Firefox 1.5; InternetExplorer 6.0|
 <<tiddler [[YourSearch Introduction]]>>
 For more information see [[Help|YourSearch Help]].
 
@@ -14,14 +14,26 @@ This plugin requires TiddlyWiki 2.0.
 Use http://tiddlywiki.abego-software.de/#YourSearchPlugin-1.0.1 for older TiddlyWiki versions.
 
 !Revision history
+* v2.0.1 (2006-02-05)
+** Support "Exact Word Match" (use '=' to prefix word)
+** Support default filter settings (when no filter flags are given in search term)
+** Rework on the "less than 3 chars search text" feature (thanks to EricShulman)
+** Better support SinglePageMode when doing "Open all tiddlers" (thanks to EricShulman)
+** Support Firefox 1.5.0.1
+** Bug: Fixed a hilite bug in "classic search mode" (thanks to EricShulman)
 * v2.0.0 (2006-01-16)
 ** Add User Interface
 * v1.0.1 (2006-01-06)
 ** Support TiddlyWiki 2.0
 * v1.0.0 (2005-12-28)
 ** initial version
+!Code
+The code is compressed. 
+
+You can retrieve a readable source code version from http://tiddlywiki.abego-software.de/#YourSearchPlugin-src.
 /%
 ***/
+// 
 //============================================================================
 //============================================================================
 //                           YourSearchPlugin
@@ -33,8 +45,8 @@ Use http://tiddlywiki.abego-software.de/#YourSearchPlugin-1.0.1 for older Tiddly
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 0, revision: 0,
-	date: new Date(2006, 1, 16), 
+	major: 2, minor: 0, revision: 1,
+	date: new Date(2006, 2, 5), 
 	type: 'plugin',
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin"
 };
@@ -77,15 +89,32 @@ var STQ = function(queryText, caseSensitive, matchTitleOnly, useRegExp) {
 	//
 	// (group 3 xor group 4 is defined)
 	//
-	var re = /\s*(\-)?([#%!]*)(?:(?:("(?:(?:\\")|[^"])*")|(\S+)))(?:\s+((?:[aA][nN][dD])|(?:[oO][rR]))(?!\S))?/mg;
+	var re = /\s*(\-)?([#%!=]*)(?:(?:("(?:(?:\\")|[^"])*")|(\S+)))(?:\s+((?:[aA][nN][dD])|(?:[oO][rR]))(?!\S))?/mg;
 
 	var matches = re.exec(queryText);
 
 	while (matches != null && matches.length == 6) {
 		var negate = '-' == matches[1];
-		var inTitle = matches[2].length == 0 || matches[2].indexOf('!') >= 0;
-		var inText = !matchTitleOnly && (matches[2].length == 0 || matches[2].indexOf('%') >= 0);
-		var inTag = !matchTitleOnly && (matches[2].length == 0 || matches[2].indexOf('#') >= 0);
+		var flags = matches[2];
+		var inTitle = flags.indexOf('!') >= 0;
+		var inText = flags.indexOf('%') >= 0;
+		var inTag = flags.indexOf('#') >= 0;
+		var wordMatch = flags.indexOf('=') >= 0;
+		if (!inTitle && !inText && !inTag) {
+			inTitle = config.options.chkSearchInTitle;
+			inText = config.options.chkSearchInText;
+			inTag = config.options.chkSearchInTags;
+			
+			// If all settings are off (i.e. all results would be empty, 
+			// i.e user error or checkboxes are gone) set all settings
+			if (!inTitle && !inText && !inTag) {
+				inTitle = inText = inTag = true;
+			}
+		}
+		if (matchTitleOnly) {
+			inText = false;
+			inTag = false;
+		}
 		
 		var text;
 		if (matches[3]) {
@@ -102,7 +131,7 @@ var STQ = function(queryText, caseSensitive, matchTitleOnly, useRegExp) {
 			throw "Invalid search expression: %0".format([queryText]);
 		}
 		var orFollows = matches[5] && matches[5].charAt(0).toLowerCase() == 'o';
-		this.terms.push(new STQ.Term(text, inTitle, inText, inTag, negate, orFollows, caseSensitive));
+		this.terms.push(new STQ.Term(text, inTitle, inText, inTag, negate, orFollows, caseSensitive, wordMatch));
 		
 		matches = re.exec(queryText);
 	}
@@ -206,8 +235,7 @@ me.getMarkRegExp = function() {
 	if (pattern.length == 0) return null;
 
 	var joinedPattern = pattern.join("|");
-	markRE = new RegExp(joinedPattern, this.caseSensitive ? "mg" : "img");
-	return markRE;
+	return new RegExp(joinedPattern, this.caseSensitive ? "mg" : "img");
 }
 
 // Internal.
@@ -230,7 +258,7 @@ me.toString = function() {
 
 // Internal.
 //
-STQ.Term = function(text, inTitle, inText, inTag, negate, orFollows, caseSensitive) {
+STQ.Term = function(text, inTitle, inText, inTag, negate, orFollows, caseSensitive, wordMatch) {
 	this.text = text;
 	this.inTitle = inTitle;
 	this.inText = inText;
@@ -238,14 +266,17 @@ STQ.Term = function(text, inTitle, inText, inTag, negate, orFollows, caseSensiti
 	this.negate = negate;
 	this.orFollows = orFollows;
 	this.caseSensitive = caseSensitive;
+	this.wordMatch = wordMatch;
 	
-	this.regExp = new RegExp(text.escapeRegExp(), "m"+(caseSensitive ? "" : "i"));
+	var reText = text.escapeRegExp();
+	if (this.wordMatch) reText = "\\b"+reText+"\\b";
+	this.regExp = new RegExp(reText, "m"+(caseSensitive ? "" : "i"));
 }
 
 // Internal.
 //
 STQ.Term.prototype.toString = function() {
-	return (this.negate ? "-" : "")+(this.inTitle ? "!" : "")+(this.inText? "%" : "")+(this.inTag? "#" : "")+'"'+this.text+'"'+ (this.orFollows ? " OR " : " AND ");
+	return (this.negate ? "-" : "")+(this.inTitle ? "!" : "")+(this.inText? "%" : "")+(this.inTag? "#" : "")+(this.wordMatch ? "=" : "")+'"'+this.text+'"'+ (this.orFollows ? " OR " : " AND ");
 }
 
 // Internal.
@@ -824,7 +855,7 @@ var createLimitedTextWithMarks = function(place, s, maxLen) {
 
 var myStorySearch = function(text,useCaseSensitive,useRegExp)
 {
-	highlightHack = new RegExp(useRegExp ? text.escapeRegExp() : text,useCaseSensitive ? "mg" : "img");
+	highlightHack = new RegExp(useRegExp ? text:text.escapeRegExp(),useCaseSensitive ? "mg" : "img");
 	var matches = findMatches(store, text,useCaseSensitive,useRegExp,"title","excludeSearch");
 
 	firstIndexOnPage = 0;
@@ -840,14 +871,11 @@ var myMacroSearchHandler = function(place,macroName,params)
 	var searchTimeout = null;
 	var doSearch = function(txt)
 		{
-		if (txt.value.length > 2) 
-			{
-			if (config.options.chkUseYourSearch)
-				myStorySearch(txt.value,config.options.chkCaseSensitiveSearch,config.options.chkRegExpSearch);
-			else
-				story.search(txt.value,config.options.chkCaseSensitiveSearch,config.options.chkRegExpSearch);
-			lastSearchText = txt.value;
-			}
+		if (config.options.chkUseYourSearch)
+			myStorySearch(txt.value,config.options.chkCaseSensitiveSearch,config.options.chkRegExpSearch);
+		else
+			story.search(txt.value,config.options.chkCaseSensitiveSearch,config.options.chkRegExpSearch);
+		lastSearchText = txt.value;
 		};
 	var clickHandler = function(e)
 		{
@@ -878,6 +906,7 @@ var myMacroSearchHandler = function(place,macroName,params)
 			reopenResultIfApplicable();
 			}
 
+		if(this.value.length<3 && searchTimeout) clearTimeout(searchTimeout);
 		if((this.value.length > 2) && (this.value != lastSearchText))
 			if (!config.options.chkUseYourSearch || config.options.chkSearchAsYouType)
 				{
@@ -934,7 +963,10 @@ var openAllFoundTiddlers = function() {
 	closeResult();
 	if (lastResults) {
 		for(var i = lastResults.length-1;i>=0;i--) {
-			story.displayTiddler(null,lastResults[i].title);
+			var titles=[];
+			for(var i = 0; i<lastResults.length; i++)
+				titles.push(lastResults[i].title);
+			story.displayTiddlers(null,titles);
 		}
 	}
 }
@@ -1363,7 +1395,9 @@ config.macros.foundTiddler.funcs.number = function(place,macroName,params,wikifi
 	}
 }
 
-
+function scrollToAnchor(name) {
+	return false;
+}
 //----------------------------------------------------------------------------
 // Configuration Stuff
 //----------------------------------------------------------------------------
@@ -1371,6 +1405,9 @@ config.macros.foundTiddler.funcs.number = function(place,macroName,params,wikifi
 if (config.options.chkUseYourSearch == undefined) config.options.chkUseYourSearch = true;
 if (config.options.chkPreviewText == undefined) config.options.chkPreviewText = true;
 if (config.options.chkSearchAsYouType==undefined) config.options.chkSearchAsYouType=true;
+if (config.options.chkSearchInTitle==undefined) config.options.chkSearchInTitle=true;
+if (config.options.chkSearchInText==undefined) config.options.chkSearchInText=true;
+if (config.options.chkSearchInTags==undefined) config.options.chkSearchInTags=true;
 if (config.options.txtItemsPerPage==undefined) config.options.txtItemsPerPage =itemsPerPageDefault;
 if (config.options.txtItemsPerPageWithPreview==undefined) config.options.txtItemsPerPageWithPreview=itemsPerPageWithPreviewDefault;
 
@@ -1404,9 +1441,18 @@ config.shadowTiddlers["YourSearch Introduction"] =
 			;
 
 config.shadowTiddlers["YourSearch Help"] = 
+//			"<html><a name='Top'/>"+
+//			"<a href='javascript:scrollToAnchor(\"Filtered\");'>[Filtered Search] </a>"+
+//			"<a href='#Boolean'>[Boolean Search] </a>"+
+//			"<a href='#Exact'>['Exact Word' Search] </a>"+
+//			"<a href='#Combined'>[Combined Search] </a>"+
+//			"<a href='#Case'>[CaseSensitiveSearch and RegExpSearch] </a>"+
+//			"<a href='#Access'>[Access Keys] </a>"+
+//			"</html>"+
 			"<<tiddler [[YourSearch Introduction]]>>"+
+//			"<html><sub><a href='#Top'>[Top]</a></sub></html>\n"+
 			"\n"+
-			"!Filtered Search\n"+
+			"!Filtered Search<html><a name='Filtered'/></html>\n"+
 			"Using the Filtered Search you can restrict your search to certain parts of a tiddler, e.g only search the tags or only the titles.\n"+
 			"|!What you want|!What you type|!Example|\n"+
 			"|Search ''titles only''|start word with ''!''|{{{!jonny}}}|\n"+
@@ -1414,8 +1460,9 @@ config.shadowTiddlers["YourSearch Help"] =
 			"|Search ''tags only''|start word with ''#''|{{{#Plugin}}}|\n"+
 			"\n"+
 			"You may use more than one filter for a word. E.g. {{{!#Plugin}}} finds tiddlers containing \"Plugin\" either in the title or in the tags (but does not look for \"Plugin\" in the content).\n"+
+//			"<html><sub><a href='#Top'>[Top]</a></sub></html>\n"+
 			"\n"+
-			"!Boolean Search\n"+
+			"!Boolean Search<html><a name='Boolean'/></html>\n"+
 			"The Boolean Search is useful when searching for multiple words.\n"+
 			"|!What you want|!What you type|!Example|\n"+
 			"|''All words'' must exist|List of words|{{{jonny jeremy}}}|\n"+
@@ -1423,14 +1470,29 @@ config.shadowTiddlers["YourSearch Help"] =
 			"|A word ''must not exist''|Start word with ''-''|{{{-jonny}}}|\n"+
 			"\n"+
 			"''Note:'' When you specify two words, separated with a space, YourSearch finds all tiddlers that contain both words, but not necessarily next to each other. If you want to find a sequence of word, e.g. '{{{John Brown}}}', you need to put the words into quotes. I.e. you type: {{{\"john brown\"}}}.\n"+
+//			"<html><sub><a href='#Top'>[Top]</a></sub></html>\n"+
 			"\n"+
-			"!Combine Filtered and Boolean Search\n"+
-			"You are free to combine Filtered and Boolean Search search. E.g. {{{!jonny !jeremy -%football}}} finds tiddlers with both {{{jonny}}} and {{{jeremy}}} in its titles, but no {{{football}}} in content.\n"+
+			"!'Exact Word' Search<html><a name='Exact'/></html>\n"+
+			"By default a search result all matches that 'contain' the searched text. \n"+
+			" E.g. if you search for 'Task' you will get all tiddlers containing 'Task', but also 'CompletedTask', 'TaskForce' etc.\n"+
 			"\n"+
-			"!~CaseSensitiveSearch and ~RegExpSearch\n"+
+			"If you only want to get the tiddlers that contain 'exactly the word' you need to prefix it with a '='. E.g. typing '=Task' will the tiddlers that contain the word 'Task', ignoring words that just contain 'Task' as a substring.\n"+
+//			"<html><sub><a href='#Top'>[Top]</a></sub></html>\n"+
+			"\n"+
+			"!Combined Search<html><a name='Combined'/></html>\n"+
+			"You are free to combine the various search options. \n"+
+			"\n"+
+			"''Examples''\n"+
+			"|!What you type|!Result|\n"+
+			"|{{{!jonny !jeremy -%football}}}| all tiddlers with both {{{jonny}}} and {{{jeremy}}} in its titles, but no {{{football}}} in content.|\n"+
+			"|{{{#=Task}}}|All tiddlers tagged with 'Task' (the exact word). Tags named 'CompletedTask', 'TaskForce' etc. are not considered.|\n"+
+//			"<html><sub><a href='#Top'>[Top]</a></sub></html>\n"+
+			"\n"+
+			"!~CaseSensitiveSearch and ~RegExpSearch<html><a name='Case'/></html>\n"+
 			"The standard search options ~CaseSensitiveSearch and ~RegExpSearch are fully supported by YourSearch. However when ''~RegExpSearch'' is on Filtered and Boolean Search are disabled.\n"+
+//			"<html><sub><a href='#Top'>[Top]</a></sub></html>\n"+
 			"\n"+
-			"!Access Keys\n"+
+			"!Access Keys<html><a name='Access'/></html>\n"+
 			"You are encouraged to use the access keys (also called \"shortcut\" keys) for the most frequently used operations. For quick reference these shortcuts are also mentioned in the tooltip for the various buttons etc.\n"+
 			"\n"+
 			"|!Key|!Operation|\n"+
@@ -1441,6 +1503,7 @@ config.shadowTiddlers["YourSearch Help"] =
 			"|{{{Alt-P}}}|Toggles the 'Preview Text' mode.|\n"+
 			"|{{{Alt-'<'}}}, {{{Alt-'>'}}}|Displays the previous or next page in the [[YourSearch Result]].|\n"+
 			"|{{{Return}}}|When you have turned off the 'as you type' search mode pressing the {{{Return}}} key actually starts the search (as does pressing the 'search' button).|\n"+
+//			"<html><sub><a href='#Top'>[Top]</a></sub></html>\n"+
 			"\n"
 			;
 
@@ -1449,8 +1512,9 @@ config.shadowTiddlers["YourSearch Options"] =
 			"|>|<<option chkUseYourSearch>> Use 'Your Search'|\n"+
 			"|!|<<option chkPreviewText>> Show Text Preview|\n"+
 			"|!|<<option chkSearchAsYouType>> 'Search As You Type' Mode (No RETURN required to start search)|\n"+
+			"|!|Default Search Filter:<<option chkSearchInTitle>>Titles ('!')     <<option chkSearchInText>>Texts ('%')     <<option chkSearchInTags>>Tags ('#')    <html><br><font size=\"-2\">The parts of a tiddlers that are searched when you don't explicitly specify a filter in the search text (using a '!', '%' or '#' prefix).</font></html>|\n"+
 			"|!|Number of items on search result page: <<option txtItemsPerPage>>|\n"+
-			"|!|Number of items on search result page with preview text: <<option txtItemsPerPageWithPreview>>|"
+			"|!|Number of items on search result page with preview text: <<option txtItemsPerPageWithPreview>>|\n"
 			;
 			
 config.shadowTiddlers["YourSearchStyleSheet"] = 
@@ -1736,3 +1800,4 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGE.
 ***/
+
