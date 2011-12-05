@@ -1,11 +1,12 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|2.1.0 (2006-10-12)|
-|''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin ([[del.icio.us|http://del.icio.us/post?url=http://tiddlywiki.abego-software.de/index.html%23YourSearchPlugin]])|
+|''Version:''|2.1.1 (2007-03-11)|
+|''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
 |''Licence:''|[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]|
 |''Copyright:''|&copy; 2005-2006 [[abego Software|http://www.abego-software.de]]|
 |''~CoreVersion:''|2.1.0|
+|''Community:''|[[del.icio.us|http://del.icio.us/post?url=http://tiddlywiki.abego-software.de/index.html%23YourSearchPlugin]]|
 |''Browser:''|Firefox 1.0.4+; Firefox 1.5; ~InternetExplorer 6.0|
 !About YourSearch
 YourSearch gives you a bunch of new features to simplify and speed up your daily searches in TiddlyWiki. It seamlessly integrates into the standard TiddlyWiki search: just start typing into the 'search' field and explore!
@@ -15,6 +16,14 @@ For more information see [[Help|YourSearch Help]].
 This plugin requires TiddlyWiki 2.1. 
 Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearchPlugins supporting older versions of TiddlyWiki.
 !Revision history
+* v2.1.1 (2007-03-11)
+** Extend "New tiddler" feature: Ctrl-Return invokes the "new tiddler" feature (create tiddler based on search text)
+** Extend "New tiddler" feature: tiddler's text and tags may also be specified (see abego.parseNewTiddlerCommandLine)
+** Support searching for URLs (like http://www.example.com)
+** Provided extended public API (abego.YourSearch.getFoundTiddlers/getQuery/onShowResult)
+** Clear MessageBox when search field gets focus (so the box no longer hides the search field)
+** Reset search result when TiddlyWiki is changed
+** Fix function abego.BoolExp
 * v2.1.0 (2006-10-12)
 ** Release version with TiddlyWiki 2.1 support
 *** Support (Extended) Field search
@@ -53,10 +62,10 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 1, revision: 0,
+	major: 2, minor: 1, revision: 1,
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin",
 	licence: "[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]",
-	copyright: "Copyright (c) abego Software GmbH, 2005-2006 (www.abego-software.de)"
+	copyright: "Copyright (c) abego Software GmbH, 2005-2007 (www.abego-software.de)"
 };
 
 if (!window.abego) window.abego = {};
@@ -223,7 +232,6 @@ abego.TiddlerFilterTerm.prototype.test = function(tiddler) {
 	return this.tester.test(tiddler);
 }
 
-//#import abego.define-namespace
 // Recognize a string like
 //     "Some Title. Some content text #Tag1 #Tag2 Tag3"
 // with the tags and the text being optional.
@@ -366,6 +374,8 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 	
 	var reNot_Parenthesis = /\s*(\-|not)?(\s*\()?/gi;
 	
+	var parseBoolExpression; //#Pre-declare function name to avoid problem with "shrinkSafe"
+	
 	var parseUnaryExpression = function(offset) {
 		reNot_Parenthesis.lastIndex = offset;
 		var m = reNot_Parenthesis.exec(s);
@@ -380,7 +390,7 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 				reCloseParenthesis.lastIndex = e.lastIndex;
 				if (!reCloseParenthesis.exec(s))
 					throw "Missing ')'";
-				result = {func: e.func, lastIndex: reCloseParenthesis.lastIndex};
+				result = {func: e.func, lastIndex: reCloseParenthesis.lastIndex, markRE: e.markRE};
 			}
 		}
 		if (!result)
@@ -396,7 +406,7 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 		return result;
 	};
 
-	var parseBoolExpression = function(offset) {
+	parseBoolExpression = function(offset) {
 		var result = parseUnaryExpression(offset);
 		while (1) {
 			var l = result.lastIndex;
@@ -1328,17 +1338,6 @@ pager.onPageChanged = function() {
 	refreshResult();
 };
 
-var showResult = function() {
-	if (!resultElement) {
-		resultElement = createTiddlyElement(document.body,"div",yourSearchResultID,"yourSearchResult");
-	} else if (resultElement.parentNode != document.body) {
-		document.body.appendChild(resultElement);
-	}
-
-	refreshResult();
-};
-
-
 var	reopenResultIfApplicable = function() {
 	if (searchInputField == null || !config.options.chkUseYourSearch) return;
 	
@@ -1348,7 +1347,7 @@ var	reopenResultIfApplicable = function() {
 			document.body.appendChild(resultElement);
 			ensureResultIsDisplayedNicely();
 		} else {
-			showResult();
+			abego.YourSearch.onShowResult(true);
 		}
 	}
 };
@@ -1404,10 +1403,7 @@ var myStorySearch = function(text,useCaseSensitive,useRegExp)
 	lastSearchText = text;
 	setLastResults(findMatches(store, text,useCaseSensitive,useRegExp,"title","excludeSearch"));
 
-	highlightHack = lastQuery ? lastQuery.getMarkRegExp() : null;
-	pager.setItems(getLastResults());
-	showResult();
-	highlightHack = null;
+	abego.YourSearch.onShowResult();
 };
 
 
@@ -1988,7 +1984,30 @@ abego.YourSearch.getCurrentTiddler = function() {
 
 abego.YourSearch.closeResult = function() {
 	closeResult();
-}
+};
+
+// Returns an array of tiddlers that matched the last search
+abego.YourSearch.getFoundTiddlers = function() {
+	return lastResults;
+};
+
+// The last Search query (TiddlerQuery), or null
+abego.YourSearch.getQuery = function() {
+	return lastQuery;
+};
+
+abego.YourSearch.onShowResult = function(useOldResult) {
+	highlightHack = lastQuery ? lastQuery.getMarkRegExp() : null;
+	if (!useOldResult)
+		pager.setItems(getLastResults());
+	if (!resultElement) {
+		resultElement = createTiddlyElement(document.body,"div",yourSearchResultID,"yourSearchResult");
+	} else if (resultElement.parentNode != document.body) {
+		document.body.appendChild(resultElement);
+	}
+	refreshResult();
+	highlightHack = null;
+};
 
 })();
 } // of "install only once"
