@@ -17,16 +17,16 @@ This plugin requires TiddlyWiki 2.1.
 Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearchPlugins supporting older versions of TiddlyWiki.
 !Revision history
 * SNAPSHOT
-** Fixed issue with IE8. Thanks to Roger Gallion for reporting and providing the fix.  (For details see: https://github.com/abego/YourSearchPlugin/issues/1)
-* v2.1.5 (2010-02-16)
-** Fixed problems with CSS and search textfield. Thanks to Guido Glatzel for reporting.
-* v2.1.4 (2009-09-04)
-** Fixed "this command is not supported" error under IE 8. Thanks to rouilj for reporting. (For details see: http://groups.google.com/group/TiddlyWiki/browse_thread/thread/cffee3254381e478)
-* v2.1.3 (2008-04-16)
-** Fixed problem with Firefox3. Thanks to Andreas Hoefler for reporting.
-* v2.1.2 (2008-03-17)
+** Fix issue with IE8. Thanks to Roger Gallion for reporting and providing the fix.  (For details see: https://github.com/abego/YourSearchPlugin/issues/1)
+* YourSearchPlugin 2.1.5 (2010-02-16)
+** Fix problems with CSS and search textfield. Thanks to Guido Glatzel for reporting.
+* YourSearchPlugin 2.1.4 (2009-09-04)
+** Fix "this command is not supported" error under IE 8. Thanks to rouilj for reporting. (For details see: http://groups.google.com/group/TiddlyWiki/browse_thread/thread/cffee3254381e478)
+* YourSearchPlugin 2.1.3 (2008-04-16)
+** Fix problem with Firefox3. Thanks to Andreas Hoefler for reporting.
+* YourSearchPlugin 2.1.2 (2008-03-17)
 ** Bug: on IE (6.0) the first letter is dropped from the search string. Thanks to Kashgarinn and Nick Padfield for reporting.
-* v2.1.1 (2007-03-11)
+* YourSearchPlugin 2.1.1 (2007-03-11)
 ** Extend "New tiddler" feature: Ctrl-Return invokes the "new tiddler" feature (create tiddler based on search text)
 ** Extend "New tiddler" feature: tiddler's text and tags may also be specified (see abego.parseNewTiddlerCommandLine)
 ** Support searching for URLs (like http://www.example.com)
@@ -34,29 +34,29 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 ** Clear MessageBox when search field gets focus (so the box no longer hides the search field)
 ** Reset search result when TiddlyWiki is changed
 ** Fix function abego.BoolExp
-* v2.1.0 (2006-10-12)
+* YourSearchPlugin 2.1.0 (2006-10-12)
 ** Release version with TiddlyWiki 2.1 support
 *** Support (Extended) Field search
 *** Support parenthesis in Boolean Search
 *** Support direct regular expression input
 *** Support JavaScript Expressions for filtering
 *** "new tiddler" feature (create tiddler based on search text)
-* v2.0.2 (2006-02-13)
+* YourSearchPlugin 2.0.2 (2006-02-13)
 ** Bugfix for Firefox 1.5.0.1 related to the "Show prefix" checkbox. Thanks to Ted Pavlic for reporting and to BramChen for fixing. 
 ** Internal
 *** Make "JSLint" conform
-* v2.0.1 (2006-02-05)
+* YourSearchPlugin 2.0.1 (2006-02-05)
 ** Support "Exact Word Match" (use '=' to prefix word)
 ** Support default filter settings (when no filter flags are given in search term)
 ** Rework on the "less than 3 chars search text" feature (thanks to EricShulman)
 ** Better support SinglePageMode when doing "Open all tiddlers" (thanks to EricShulman)
 ** Support Firefox 1.5.0.1
 ** Bug: Fixed a hilite bug in "classic search mode" (thanks to EricShulman)
-* v2.0.0 (2006-01-16)
+* YourSearchPlugin 2.0.0 (2006-01-16)
 ** Add User Interface
-* v1.0.1 (2006-01-06)
+* YourSearchPlugin 1.0.1 (2006-01-06)
 ** Support TiddlyWiki 2.0
-* v1.0.0 (2005-12-28)
+* YourSearchPlugin 1.0.0 (2005-12-28)
 ** initial version
 !Source Code
 ***/
@@ -72,7 +72,7 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 1, revision: 6, snapshotVersion: true,
+	major: 2, minor: 1, revision: 6, isSnapshot: true,
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin",
 	licence: "[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]",
 	copyright: "Copyright (c) abego Software GmbH, 2005-2011 (www.abego-software.de)"
