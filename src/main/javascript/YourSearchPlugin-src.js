@@ -1,10 +1,10 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|2.1.3 (2008-04-16)|
+|''Version:''|2.1.4 (2009-09-04)|
 |''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
 |''Licence:''|[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]|
-|''Copyright:''|&copy; 2005-2008 [[abego Software|http://www.abego-software.de]]|
+|''Copyright:''|&copy; 2005-2009 [[abego Software|http://www.abego-software.de]]|
 |''~CoreVersion:''|2.1.0|
 |''Community:''|[[del.icio.us|http://del.icio.us/post?url=http://tiddlywiki.abego-software.de/index.html%23YourSearchPlugin]]|
 |''Browser:''|Firefox 1.0.4+; Firefox 1.5; ~InternetExplorer 6.0|
@@ -16,6 +16,8 @@ For more information see [[Help|YourSearch Help]].
 This plugin requires TiddlyWiki 2.1. 
 Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearchPlugins supporting older versions of TiddlyWiki.
 !Revision history
+* v2.1.4 (2009-09-04)
+** Fixed "this command is not supported" error under IE 8. Thanks to rouilj for reporting. (For details see: http://groups.google.com/group/TiddlyWiki/browse_thread/thread/cffee3254381e478)
 * v2.1.3 (2008-04-16)
 ** Fixed problem with Firefox3. Thanks to Andreas Hoefler for reporting.
 * v2.1.2 (2008-03-17)
@@ -66,10 +68,10 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 1, revision: 3,
+	major: 2, minor: 1, revision: 4,
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin",
 	licence: "[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]",
-	copyright: "Copyright (c) abego Software GmbH, 2005-2008 (www.abego-software.de)"
+	copyright: "Copyright (c) abego Software GmbH, 2005-2009 (www.abego-software.de)"
 };
 
 if (!window.abego) window.abego = {};
@@ -1514,7 +1516,7 @@ var myMacroSearchHandler = function(place,macroName,params,wikifier,paramString,
 	if (!buttonAtRight)
 		btn = createTiddlyButton(place,this.label,this.prompt,clickHandler);
 		
-	var txt = createTiddlyElement(place,"input",null,null,null);
+	var txt = createTiddlyElement(null,"input",null,null,null);
 	if(params[0])
 		txt.value = params[0];
 	txt.onkeyup = keyHandler;
@@ -1529,6 +1531,9 @@ var myMacroSearchHandler = function(place,macroName,params,wikifier,paramString,
 		}
 	else
 		txt.setAttribute("type","text");
+
+	if(place)
+		place.appendChild(txt);
 
 	if (buttonAtRight)
 		btn = createTiddlyButton(place,this.label,this.prompt,clickHandler);
@@ -2038,7 +2043,7 @@ abego.YourSearch.onShowResult = function(useOldResult) {
 //}}}
 /***
 !Licence and Copyright
-Copyright (c) abego Software ~GmbH, 2005-2008 ([[www.abego-software.de|http://www.abego-software.de]])
+Copyright (c) abego Software ~GmbH, 2005-2009 ([[www.abego-software.de|http://www.abego-software.de]])
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
