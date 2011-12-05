@@ -1,10 +1,10 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|1.0.0 (2005-12-28)|
+|''Version:''|1.0.1 (2006-01-06)|
 |''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
 |''Licence:''|[[BSD open source license]]|
-|''TiddlyWiki:''|1.2.38+|
+|''TiddlyWiki:''|1.2.38+, 2.0|
 |''Browser:''|Firefox 1.0.4+; InternetExplorer 6.0|
 !Description
 Looking for all tiddlers dealing with 'jonny' and 'jeremy' but not tagged 'football'? Want to find every tiddler that contains "recipe" in its title and deals with "potato"? With the "YourSearchPlugin" you can use the standard "search" box to easily accomplish searches like this. 
@@ -55,6 +55,8 @@ The YourSearch plugin works nicely together with Eric Shulman's "SearchOptionsPl
 In addition the SearchOptions features "Search results show title matches first" and "Incremental searching" are also supported. The settings of "Search in tiddler titles/text/tags" are ignored since you can easily perform these restricted searches with the "!", "%" and "#" prefixes.
 
 !Revision history
+* v1.0.1 (2006-01-06)
+** Support TiddlyWiki 2.0
 * v1.0.0 (2005-12-28)
 ** initial version
 !Code
@@ -72,8 +74,8 @@ if (!version.extensions.YourSearchPlugin) {
 
 
 version.extensions.YourSearchPlugin = {
-	major: 1, minor: 0, revision: 0,
-	date: new Date(2005, 12, 28), 
+	major: 1, minor: 0, revision: 1,
+	date: new Date(2006, 1, 6), 
 	type: 'plugin',
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin"
 };
@@ -388,16 +390,6 @@ SimpleTiddlerQuery.Term.prototype.matchesTiddler = function(tiddler) {
 	return this.negate;
 }
 
-
-//============================================================================
-// This finishes up the YourSearchPlugin code. Just a last closing brace for 
-// the "only install this plugin once" check.
-}
-
-//============================================================================
-//============================================================================
-//                    End of YourSearchPlugin
-//============================================================================
-//============================================================================
+} // of "install only once"
 
 //}}}
