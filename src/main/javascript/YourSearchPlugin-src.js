@@ -1,10 +1,10 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|2.1.1 (2007-03-11)|
+|''Version:''|2.1.2 (2008-03-17)|
 |''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
 |''Licence:''|[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]|
-|''Copyright:''|&copy; 2005-2006 [[abego Software|http://www.abego-software.de]]|
+|''Copyright:''|&copy; 2005-2008 [[abego Software|http://www.abego-software.de]]|
 |''~CoreVersion:''|2.1.0|
 |''Community:''|[[del.icio.us|http://del.icio.us/post?url=http://tiddlywiki.abego-software.de/index.html%23YourSearchPlugin]]|
 |''Browser:''|Firefox 1.0.4+; Firefox 1.5; ~InternetExplorer 6.0|
@@ -16,6 +16,8 @@ For more information see [[Help|YourSearch Help]].
 This plugin requires TiddlyWiki 2.1. 
 Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearchPlugins supporting older versions of TiddlyWiki.
 !Revision history
+* v2.1.2 (2008-03-17)
+** Bug: on IE (6.0) the first letter is dropped from the search string. Thanks to Kashgarinn and Nick Padfield for reporting.
 * v2.1.1 (2007-03-11)
 ** Extend "New tiddler" feature: Ctrl-Return invokes the "new tiddler" feature (create tiddler based on search text)
 ** Extend "New tiddler" feature: tiddler's text and tags may also be specified (see abego.parseNewTiddlerCommandLine)
@@ -62,7 +64,7 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 1, revision: 1,
+	major: 2, minor: 1, revision: 2,
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin",
 	licence: "[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]",
 	copyright: "Copyright (c) abego Software GmbH, 2005-2007 (www.abego-software.de)"
@@ -382,7 +384,7 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 		var negate;
 		var result;
 		if (m && m.index == offset) {
-			offset = reNot_Parenthesis.lastIndex;
+			offset += m[0].length;
 			negate = m[1];
 			if (m[2]) {
 				// case:  (...)
