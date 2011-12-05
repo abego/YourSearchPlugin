@@ -1,6 +1,6 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|2.0.1 (2006-02-05)|
+|''Version:''|2.0.2 (2006-02-13)|
 |''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
 |''Licence:''|[[BSD open source license]]|
@@ -14,6 +14,10 @@ This plugin requires TiddlyWiki 2.0.
 Use http://tiddlywiki.abego-software.de/#YourSearchPlugin-1.0.1 for older TiddlyWiki versions.
 
 !Revision history
+* v2.0.2 (2006-02-13)
+** Bugfix for Firefox 1.5.0.1 related to the "Show prefix" checkbox. Thanks to Ted Pavlic for reporting and to BramChen for fixing. 
+** Internal
+*** Make "JSLint" conform
 * v2.0.1 (2006-02-05)
 ** Support "Exact Word Match" (use '=' to prefix word)
 ** Support default filter settings (when no filter flags are given in search term)
@@ -27,13 +31,9 @@ Use http://tiddlywiki.abego-software.de/#YourSearchPlugin-1.0.1 for older Tiddly
 ** Support TiddlyWiki 2.0
 * v1.0.0 (2005-12-28)
 ** initial version
-!Code
-The code is compressed. 
-
-You can retrieve a readable source code version from http://tiddlywiki.abego-software.de/#YourSearchPlugin-src.
 /%
 ***/
-// 
+//{{{
 //============================================================================
 //============================================================================
 //                           YourSearchPlugin
@@ -45,8 +45,8 @@ You can retrieve a readable source code version from http://tiddlywiki.abego-sof
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 0, revision: 1,
-	date: new Date(2006, 2, 5), 
+	major: 2, minor: 0, revision: 2,
+	date: new Date(2006, 2, 13), 
 	type: 'plugin',
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin"
 };
@@ -135,7 +135,7 @@ var STQ = function(queryText, caseSensitive, matchTitleOnly, useRegExp) {
 		
 		matches = re.exec(queryText);
 	}
-}
+};
 
 var me = STQ.prototype;
 
@@ -153,7 +153,7 @@ me.getMatchingTiddlers = function(tiddlersMap) {
 		}
 	}
 	return result;
-}
+};
 
 
 // Internal.
@@ -199,7 +199,7 @@ me.matchesTiddler = function(tiddler) {
 		}
 	}
 	return hasMatch;
-}
+};
 
 // Internal.
 // 
@@ -208,7 +208,7 @@ me.getOnlyMatchTitleQuery = function() {
 		this.onlyMatchTitleQuery = new STQ(this.queryText, this.caseSensitive, true, this.useRegExp);
 	}
 	return this.onlyMatchTitleQuery;
-}
+};
 
 
 // Returns a regular expression that can be used to marking/hiliting
@@ -236,7 +236,7 @@ me.getMarkRegExp = function() {
 
 	var joinedPattern = pattern.join("|");
 	return new RegExp(joinedPattern, this.caseSensitive ? "mg" : "img");
-}
+};
 
 // Internal.
 // 
@@ -250,7 +250,7 @@ me.toString = function() {
 		result += this.terms[i].toString();
 	}
 	return result;
-}
+};
 
 //----------------------------------------------------------------------------
 // The STQ.Term Class
@@ -271,13 +271,13 @@ STQ.Term = function(text, inTitle, inText, inTag, negate, orFollows, caseSensiti
 	var reText = text.escapeRegExp();
 	if (this.wordMatch) reText = "\\b"+reText+"\\b";
 	this.regExp = new RegExp(reText, "m"+(caseSensitive ? "" : "i"));
-}
+};
 
 // Internal.
 //
 STQ.Term.prototype.toString = function() {
 	return (this.negate ? "-" : "")+(this.inTitle ? "!" : "")+(this.inText? "%" : "")+(this.inTag? "#" : "")+(this.wordMatch ? "=" : "")+'"'+this.text+'"'+ (this.orFollows ? " OR " : " AND ");
-}
+};
 
 // Internal.
 //
@@ -308,7 +308,7 @@ STQ.Term.prototype.matchesTiddler = function(tiddler) {
 	}
 	
 	return this.negate;
-}
+};
 
 //----------------------------------------------------------------------------
 // Utils
@@ -318,11 +318,11 @@ var stringToInt = function(s, defaultValue) {
 	if (!s) return defaultValue;
 	var n = parseInt(s);
 	return (n == NaN) ? defaultValue : n;
-}
+};
 
 var getIntAttribute = function(elem, name, defaultValue) {
 	return stringToInt(elem.getAttribute(name));
-}
+};
 
 // Returns true if e is either self or a descendant (child, grandchild,...) of self.
 //
@@ -335,21 +335,21 @@ var isDescendantOrSelf = function(self, e) {
 		e = e.parentNode;
 	}
 	return false;
-}
+};
 
 var getMatchCount = function(s, re) {
 	var m = s.match(re);
 	return m ? m.length : 0;
-}
+};
 
 var createEllipsis = function(place) {
 	var e = createTiddlyElement(place,"span");
 	e.innerHTML = "&hellip;";
-}
+};
 
 var isWordChar = function(c) {
 	return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_";
-}
+};
 
 // Returns the bounds of the word in s around offset as a {start: , end:} object.
 //
@@ -360,15 +360,15 @@ var getWordBounds = function(s, offset) {
 	if (!isWordChar(s[offset])) return null;
 
 	for (var i = offset-1; i >= 0 && isWordChar(s[i]); i--) 
-		/*empty*/;
+		{/*empty*/}
 		
 	var startIndex = i+1;
 	var n = s.length;
 	for (i = offset+1; i < n && isWordChar(s[i]); i++) 
-		/*empty*/;
+		{/*empty*/}
 	
 	return {start: startIndex, end: i};
-}
+};
 
 
 var removeTextDecoration = function(s) {
@@ -379,7 +379,7 @@ var removeTextDecoration = function(s) {
 		reText += "("+removeThis[i].escapeRegExp()+")";
 	}
 	return s.replace(new RegExp(reText, "mg"), "").trim();
-}
+};
 
 var logText = "";
 var lastLogTime = null;
@@ -388,7 +388,7 @@ var logMessage = function(kind, s) {
 	var delta = lastLogTime ? (now-lastLogTime).toString() : "";
 	logText += "<tr><td>"+now.convertToYYYYMMDDHHMMSSMMM()+"</td><td align='right'>"+delta+"</td><td>"+kind+"</td><td>"+s.htmlEncode()+"</td></tr>\n";
 	lastLogTime = now;
-}
+};
 
 function writeLog() {
 	var t = " <<JsDoIt 'WriteLog' 'WriteLog' 'javascript:writeLog();story.closeTiddler(\"Log\");story.displayTiddler(null,\"Log\");'>>"+
@@ -445,7 +445,7 @@ var getItemsPerPage = function() {
 			? stringToInt(config.options.txtItemsPerPageWithPreview, itemsPerPageWithPreviewDefault) 
 			: stringToInt(config.options.txtItemsPerPage, itemsPerPageDefault);
 	return (n > 0) ? n : 1;
-}
+};
 
 var standardRankFunction = function(tiddler, query) {	
 	// Count the matches in the title and the tags
@@ -468,7 +468,7 @@ var standardRankFunction = function(tiddler, query) {
 			+ 1;
 
 	return rank;
-}
+};
 
 // @return Tiddler[]
 //
@@ -486,7 +486,11 @@ var findMatches = function(store, searchText,caseSensitive,useRegExp,sortField,e
 	for (var i = 0; i < results.length; i++) {
 		var tiddler = results[i];
 		var rank = rankFunction(tiddler, query);
-		tiddler.searchRank = rank;		
+		// Add the rank information to the tiddler.
+		// This is used during the sorting, but it may also
+		// be used in the result, e.g. to display some "relevance" 
+		// information in the result	
+		tiddler.searchRank = rank;	
 	}
 	
 	// sort the result, taking care of the rank and the sortField	
@@ -505,18 +509,13 @@ var findMatches = function(store, searchText,caseSensitive,useRegExp,sortField,e
 		} else {
 			return (searchRankDiff > 0) ? -1 : +1; 
 		}
-	}
+	};
 	results.sort(sortFunction);
-	
-	// Remove rank information
-	for (var i = 0; i < results.length; i++) {
-        delete results[i].searchRank;
-	}
 	
 	lastResults = results;
 	
 	return results;
-}
+};
 
 
 //----------------------------------------------------------------------------
@@ -561,7 +560,7 @@ var moveToWordBorder = function(s, offset, isStartOffset) {
 		if (wordBounds.start >= offset-maxMovementForWordCorrection) return wordBounds.start;
 	}
 	return offset;
-}
+};
 
 var getContextRangeAround = function(s, startIndex, endIndex, matchCount, maxLen) {
 	// Partition the available space into equal sized areas for each match and one 
@@ -581,7 +580,7 @@ var getContextRangeAround = function(s, startIndex, endIndex, matchCount, maxLen
 	contextEnd = moveToWordBorder(s, contextEnd, false);
 	
 	return {start: contextStart, end: contextEnd};
-}
+};
 
 // Splits s into a sequence of "matched" and "unmatched" substrings, using the 
 // matchRegExp to do the matching.
@@ -617,7 +616,7 @@ var getTextAndMatchArray = function(s, matchRegExp) {
 		result.push({text: s});
 	}
 	return result;
-}
+};
 
 
 var simpleCreateLimitedTextWithMarks = function(place, s, maxLen) {
@@ -639,7 +638,7 @@ var simpleCreateLimitedTextWithMarks = function(place, s, maxLen) {
 		}
 		currentLen += text.length;
 	}
-}
+};
 
 
 
@@ -660,10 +659,11 @@ var addRange = function(ranges, startIndex, endIndex) {
 		if (range.start <= endIndex && startIndex <= range.end) {
 			// Found.
 			
+			var r;
 			// find the first range behind the new range that does not interfere
 			var rIndex = i+1;
 			for (; rIndex < n; rIndex++) {
-				var r = ranges[rIndex];
+				r = ranges[rIndex];
 				if (r.start > endIndex || startIndex > range.end) {
 					break;
 				}
@@ -673,7 +673,7 @@ var addRange = function(ranges, startIndex, endIndex) {
 			var unionStart = startIndex;
 			var unionEnd = endIndex;
 			for (var j = i; j < rIndex; j++) {
-				var r = ranges[j];
+				r = ranges[j];
 				unionStart = Math.min(unionStart, r.start);
 				unionEnd = Math.max(unionEnd, r.end);
 			}
@@ -693,7 +693,7 @@ var addRange = function(ranges, startIndex, endIndex) {
 	// becomes the right most range). 
 
 	ranges.splice(i, 0, {start: startIndex, end: endIndex});
-}
+};
 
 var getTotalRangesSize = function(ranges) {
 	var totalRangeSize = 0;
@@ -702,7 +702,7 @@ var getTotalRangesSize = function(ranges) {
 		totalRangeSize += range.end-range.start;
 	}
 	return totalRangeSize;
-}
+};
 
 // Processes the text between startIndex and endIndex of the textAndMatches
 // "writes" them (as DOM elements) at the given place, possibly as "marked" text.
@@ -710,13 +710,16 @@ var getTotalRangesSize = function(ranges) {
 // When endIndex is not the end of the full text an ellisis is appended. 
 //
 var writeTextAndMatchRange = function(place, s, textAndMatches, startIndex, endIndex) {
+	var t;
+	var text;
+	
 	// find the first text item to write
 	var pos = 0;
 	var i = 0;
 	var offset = 0;
 	for (;i < textAndMatches.length; i++) {
-		var t = textAndMatches[i];
-		var text = t.text;
+		t = textAndMatches[i];
+		text = t.text;
 		if (startIndex < pos+text.length) {
 			offset = startIndex - pos;
 			break;
@@ -726,8 +729,8 @@ var writeTextAndMatchRange = function(place, s, textAndMatches, startIndex, endI
 	
 	var remainingLen = endIndex - startIndex;
 	for (; i < textAndMatches.length && remainingLen > 0; i++) {
-		var t = textAndMatches[i];
-		var text = t.text.substr(offset);
+		t = textAndMatches[i];
+		text = t.text.substr(offset);
 		offset = 0;
 		if (text.length > remainingLen) text = text.substr(0,remainingLen);
 		
@@ -742,7 +745,7 @@ var writeTextAndMatchRange = function(place, s, textAndMatches, startIndex, endI
 	if (endIndex < s.length) {
 		createEllipsis(place);
 	}
-}
+};
 
 var getMatchedTextCount = function(textAndMatches) {
 	var result = 0;
@@ -752,7 +755,7 @@ var getMatchedTextCount = function(textAndMatches) {
 		}
 	}
 	return result;	
-}
+};
 
 // Get all ranges around matched substrings with their contexts
 //
@@ -770,7 +773,7 @@ var getMatchedTextWithContextRanges = function(textAndMatches, s, maxLen) {
 		pos += text.length;
 	}
 	return ranges;
-}
+};
 
 var fillUpRanges = function(s, ranges, maxLen) {
 	var remainingLen = maxLen - getTotalRangesSize(ranges);
@@ -806,7 +809,7 @@ var fillUpRanges = function(s, ranges, maxLen) {
 			remainingLen -= (endIndex-startIndex);
 		}
 	}
-}
+};
 
 // Write the given ranges of s, using textAndMatches for marking portions of the text.
 //
@@ -824,7 +827,7 @@ var writeRanges = function(place, s, textAndMatches, ranges, maxLen) {
 		writeTextAndMatchRange(place, s, textAndMatches, range.start, range.start+len);
 		remainingLen -= len;
 	}
-}
+};
 
 var createLimitedTextWithMarksAndContext = function(place, s, maxLen) {
 	if (!lastQuery) return;
@@ -841,12 +844,12 @@ var createLimitedTextWithMarksAndContext = function(place, s, maxLen) {
 	fillUpRanges(s, ranges, maxLen);
 
 	writeRanges(place, s, textAndMatches, ranges, maxLen);
-}
+};
 
 var createLimitedTextWithMarks = function(place, s, maxLen) {
 //	return simpleCreateLimitedTextWithMarks(place, s, maxLen);
 	return createLimitedTextWithMarksAndContext(place, s, maxLen);
-}
+};
 
 
 //----------------------------------------------------------------------------
@@ -862,7 +865,7 @@ var myStorySearch = function(text,useCaseSensitive,useRegExp)
 	showResult();
 	
 	highlightHack = null;
-}
+};
 
 
 var myMacroSearchHandler = function(place,macroName,params)
@@ -947,29 +950,28 @@ var myMacroSearchHandler = function(place,macroName,params)
 
 	searchInputField = txt;
 	searchButton = btn;
-}
+};
 
 var isResultOpen = function() {
 	return resultElement != null && resultElement.parentNode == document.body;
-}
+};
 
 var closeResult = function() {
 	if (isResultOpen()) {
 		document.body.removeChild(resultElement);
 	}
-}
+};
+
 
 var openAllFoundTiddlers = function() {
 	closeResult();
 	if (lastResults) {
-		for(var i = lastResults.length-1;i>=0;i--) {
-			var titles=[];
-			for(var i = 0; i<lastResults.length; i++)
-				titles.push(lastResults[i].title);
-			story.displayTiddlers(null,titles);
-		}
+		var titles=[];
+		for(var i = 0; i<lastResults.length; i++)
+			titles.push(lastResults[i].title);
+		story.displayTiddlers(null,titles);
 	}
-}
+};
 
 // Refreshes the content of the result with the current search result
 // of the selected page.
@@ -1023,7 +1025,7 @@ var refreshResult = function() {
 	currentTiddler = null;
 
 	ensureResultIsDisplayedNicely();
-}
+};
 
 // Makes sure the result page has a good size and position and visible
 // (may scroll the window)
@@ -1031,13 +1033,13 @@ var refreshResult = function() {
 var	ensureResultIsDisplayedNicely = function() {
 	adjustResultPositionAndSize();
 	scrollVisible();
-}
+};
 
 var scrollVisible = function() {
 	// Scroll the window to make the result page (and the search Input field) visible.
 	if (resultElement) window.scrollTo(0,ensureVisible(resultElement));
 	if (searchInputField) window.scrollTo(0,ensureVisible(searchInputField));
-}
+};
 
 // Adjusts the resultElement's size and position, relative to the search input field.
 //
@@ -1071,7 +1073,7 @@ var adjustResultPositionAndSize = function() {
 	resultElement.style.left = popupLeft + "px";
 	resultElement.style.top = popupTop + "px";
 	resultElement.style.display = "block";
-}
+};
 
 var showResult = function() {
 	if (!resultElement) {
@@ -1081,7 +1083,7 @@ var showResult = function() {
 	}
 
 	refreshResult();
-}
+};
 
 var	reopenResultIfApplicable = function() {
 	if (searchInputField == null || !config.options.chkUseYourSearch) return;
@@ -1095,14 +1097,14 @@ var	reopenResultIfApplicable = function() {
 			showResult();
 		}
 	}
-}
+};
 
 var setFirstIndexOnPage = function(index) {
 	if (!lastResults || lastResults.length == 0) return;
 
 	firstIndexOnPage = Math.min(Math.max(0, index), lastResults.length-1);
 	refreshResult();	
-}
+};
 
 
 var onDocumentClick = function(e) {
@@ -1113,12 +1115,12 @@ var onDocumentClick = function(e) {
 	if (resultElement && isDescendantOrSelf(resultElement, e.target)) return; 
 	
 	closeResult();
-}
+};
 
 var onDocumentKeyup = function(e) {
 	// Close the search result page when the user presses "ESC"
 	if (e.keyCode == 27) closeResult();
-}
+};
 addEvent(document,"click",onDocumentClick);
 addEvent(document,"keyup",onDocumentKeyup);
 
@@ -1142,7 +1144,7 @@ config.macros.yourSearch = {
 		"found" : function() {return lastResults && lastResults.length > 0;},
 		"previewText" : function() {return config.options.chkPreviewText;}
 	}
-}
+};
 
 config.macros.yourSearch.handler = function(place,macroName,params,wikifier,paramString,tiddler) {
 	if (params.length == 0) return;
@@ -1150,7 +1152,7 @@ config.macros.yourSearch.handler = function(place,macroName,params,wikifier,para
 	var name = params[0];
 	var func = config.macros.yourSearch.funcs[name];
 	if (func) func(place,macroName,params,wikifier,paramString,tiddler);
-}
+};
 
 config.macros.yourSearch.funcs.itemRange = function(place) {
 	if (lastResults) {
@@ -1158,19 +1160,19 @@ config.macros.yourSearch.funcs.itemRange = function(place) {
 		var s = "%0 - %1".format([firstIndexOnPage+1,endIndex]);
 		createTiddlyText(place, s);
 	}
-}
+};
 
 config.macros.yourSearch.funcs.count = function(place) {
 	if (lastSearchText) {
 		createTiddlyText(place, lastResults.length.toString());
 	}
-}
+};
 
 config.macros.yourSearch.funcs.query = function(place) {
 	if (lastResults) {
 		createTiddlyText(place, lastSearchText);
 	}
-}
+};
 
 config.macros.yourSearch.funcs.version = function(place) {
 	var t = "YourSearch %0.%1.%2".format(
@@ -1180,13 +1182,13 @@ config.macros.yourSearch.funcs.version = function(place) {
 	var e = createTiddlyElement(place, "a");
 	e.setAttribute("href", "http://tiddlywiki.abego-software.de/#YourSearchPlugin");
 	e.innerHTML = '<font color="black" face="Arial, Helvetica, sans-serif">'+t+'<font>';
-}
+};
 
 config.macros.yourSearch.funcs.copyright = function(place) {
 	var e = createTiddlyElement(place, "a");
 	e.setAttribute("href", "http://tiddlywiki.abego-software.de");
 	e.innerHTML = '<font color="black" face="Arial, Helvetica, sans-serif">&copy; 2005-2006 <b><font color="red">abego</font></b> Software<font>';
-}
+};
 
 
 config.macros.yourSearch.funcs.linkButton = function(place,macroName,params,wikifier,paramString,tiddler) {
@@ -1199,11 +1201,11 @@ config.macros.yourSearch.funcs.linkButton = function(place,macroName,params,wiki
 	
 	var btn = createTiddlyButton(place,text,tooltip,closeResultAndDisplayTiddler,null,null, accessKey);
 	btn.setAttribute("tiddlyLink",tiddlyLink);
-}
+};
 
 config.macros.yourSearch.funcs.closeButton = function(place,macroName,params,wikifier,paramString,tiddler) {
 	var button = createTiddlyButton(place, "close", "Close the Search Results (Shortcut: ESC)", closeResult);
-}
+};
 
 config.macros.yourSearch.funcs.openAllButton = function(place,macroName,params,wikifier,paramString,tiddler) {
 	if (!lastResults) return;
@@ -1213,21 +1215,22 @@ config.macros.yourSearch.funcs.openAllButton = function(place,macroName,params,w
 	var title = n == 1 ? "open tiddler" : "open all %0 tiddlers".format([n]);
 	var button = createTiddlyButton(place, title, "Open all found tiddlers (Shortcut: Alt-O)", openAllFoundTiddlers);
 	button.setAttribute("accessKey","O");
-}
+};
 
 var onNaviButtonClick = function(e) {
 	if (!e) var e = window.event;
 	var pageIndex = getIntAttribute(this, "page");
 	setFirstIndexOnPage(pageIndex * getItemsPerPage(), 0);
-}
+};
 
 config.macros.yourSearch.funcs.naviBar = function(place,macroName,params,wikifier,paramString,tiddler) {
 	if (!lastResults || lastResults.length == 0) return;
 
+	var button;
 	var currentPageIndex = Math.floor(firstIndexOnPage / getItemsPerPage());
 	var lastPageIndex = Math.floor((lastResults.length-1) / getItemsPerPage());
 	if (currentPageIndex > 0) {
-		var button = createTiddlyButton(place, "Previous", "Go to previous page (Shortcut: Alt-'<')", onNaviButtonClick, "prev");
+		button = createTiddlyButton(place, "Previous", "Go to previous page (Shortcut: Alt-'<')", onNaviButtonClick, "prev");
 		button.setAttribute("page",(currentPageIndex-1).toString());
 		button.setAttribute("accessKey","<");
 	}
@@ -1239,16 +1242,16 @@ config.macros.yourSearch.funcs.naviBar = function(place,macroName,params,wikifie
 
 		var pageNo = (i+currentPageIndex+1).toString();
 		var buttonClass = pageIndex == currentPageIndex ? "currentPage" : "otherPage";
-		var button = createTiddlyButton(place, pageNo, "Go to page %0".format([pageNo]), onNaviButtonClick, buttonClass);
+		button = createTiddlyButton(place, pageNo, "Go to page %0".format([pageNo]), onNaviButtonClick, buttonClass);
 		button.setAttribute("page",(pageIndex).toString());
 	}
 	
 	if (currentPageIndex < lastPageIndex) {
-		var button = createTiddlyButton(place, "Next", "Go to next page (Shortcut: Alt-'>')", onNaviButtonClick, "next");
+		button = createTiddlyButton(place, "Next", "Go to next page (Shortcut: Alt-'>')", onNaviButtonClick, "next");
 		button.setAttribute("page",(currentPageIndex+1).toString());
 		button.setAttribute("accessKey",">");
 	}
-}
+};
 
 
 config.macros.yourSearch.funcs["if"] = function(place,macroName,params,wikifier,paramString,tiddler) {
@@ -1276,7 +1279,7 @@ config.macros.yourSearch.funcs["if"] = function(place,macroName,params,wikifier,
 	if (!showIt) {
 		place.style.display="none";
 	}
-}
+};
 
 var createOptionWithRefresh = function(place, optionParams, wikifier,tiddler) {
 	invokeMacro(place,"option",optionParams,wikifier,tiddler);
@@ -1284,12 +1287,12 @@ var createOptionWithRefresh = function(place, optionParams, wikifier,tiddler) {
 	var elem = place.lastChild;
 	var oldOnClick = elem.onclick;
 	elem.onclick = function(e) {
-		result = oldOnClick.apply(this, arguments);
+		var result = oldOnClick.apply(this, arguments);
 		refreshResult();
 		return result;
-	}
+	};
 	return elem;
-}
+};
 
 config.macros.yourSearch.funcs.chkPreviewText = function(place,macroName,params,wikifier,paramString,tiddler) {
 	var optionParams = params.slice(1).join(" ");
@@ -1298,7 +1301,7 @@ config.macros.yourSearch.funcs.chkPreviewText = function(place,macroName,params,
 	elem.setAttribute("accessKey", "P");
 	elem.title = "Show text preview of found tiddlers (Shortcut: Alt-P)";	
 	return elem;
-}
+};
 
 // ====Macro foundTiddler ================================================
 
@@ -1308,7 +1311,7 @@ config.macros.foundTiddler = {
 	prompt: "Provides information on the tiddler currently processed on the YourSearch result page",
 	
 	funcs: {}
-}
+};
 
 
 config.macros.foundTiddler.handler = function(place,macroName,params,wikifier,paramString,tiddler) {
@@ -1316,7 +1319,7 @@ config.macros.foundTiddler.handler = function(place,macroName,params,wikifier,pa
 	var name = params[0];
 	var func = config.macros.foundTiddler.funcs[name];
 	if (func) func(place,macroName,params,wikifier,paramString,tiddler);
-}
+};
 
 // Closes the Search Result window and displays the tiddler 
 // defined by the "tiddlyLink" attribute of this element
@@ -1336,7 +1339,7 @@ var closeResultAndDisplayTiddler = function(e)
 		highlightHack = oldHighlightHack;
 	}
 	return(false);
-}
+};
 
 // Returns the "shortcut number" of the currentTiddler. 
 // I.e. When the user presses Alt-n the given tiddler is opened/display.
@@ -1351,7 +1354,7 @@ var getShortCutNumber = function() {
 	} else {
 		return -1;
 	}
-}
+};
 
 config.macros.foundTiddler.funcs.title = function(place,macroName,params,wikifier,paramString,tiddler) {
 	if (!currentTiddler) return;
@@ -1370,19 +1373,20 @@ config.macros.foundTiddler.funcs.title = function(place,macroName,params,wikifie
 	if (shortcutNumber >= 0) {
 		btn.setAttribute("accessKey",shortcutNumber.toString());
 	}
-}
+};
 
 config.macros.foundTiddler.funcs.tags = function(place,macroName,params,wikifier,paramString,tiddler) {
 	if (!currentTiddler) return;
 
 	createLimitedTextWithMarks(place, currentTiddler.getTags(), maxCharsInTags);
-}
+};
 
 config.macros.foundTiddler.funcs.text = function(place,macroName,params,wikifier,paramString,tiddler) {
 	if (!currentTiddler) return;
 
 	createLimitedTextWithMarks(place, removeTextDecoration(currentTiddler.text), maxCharsInText);
-}
+};
+
 
 // Renders the "shortcut number" of the current tiddler, to indicate to the user
 // what number to "Alt-press" to open the tiddler.
@@ -1393,7 +1397,7 @@ config.macros.foundTiddler.funcs.number = function(place,macroName,params,wikifi
 		var text = "%0)".format([numberToDisplay.toString()]);
 		createTiddlyElement(place,"span",null,"shortcutNumber",text);
 	}
-}
+};
 
 function scrollToAnchor(name) {
 	return false;
@@ -1404,12 +1408,12 @@ function scrollToAnchor(name) {
 
 if (config.options.chkUseYourSearch == undefined) config.options.chkUseYourSearch = true;
 if (config.options.chkPreviewText == undefined) config.options.chkPreviewText = true;
-if (config.options.chkSearchAsYouType==undefined) config.options.chkSearchAsYouType=true;
-if (config.options.chkSearchInTitle==undefined) config.options.chkSearchInTitle=true;
-if (config.options.chkSearchInText==undefined) config.options.chkSearchInText=true;
-if (config.options.chkSearchInTags==undefined) config.options.chkSearchInTags=true;
-if (config.options.txtItemsPerPage==undefined) config.options.txtItemsPerPage =itemsPerPageDefault;
-if (config.options.txtItemsPerPageWithPreview==undefined) config.options.txtItemsPerPageWithPreview=itemsPerPageWithPreviewDefault;
+if (config.options.chkSearchAsYouType == undefined) config.options.chkSearchAsYouType=true;
+if (config.options.chkSearchInTitle == undefined) config.options.chkSearchInTitle=true;
+if (config.options.chkSearchInText == undefined) config.options.chkSearchInText=true;
+if (config.options.chkSearchInTags == undefined) config.options.chkSearchInTags=true;
+if (config.options.txtItemsPerPage == undefined) config.options.txtItemsPerPage =itemsPerPageDefault;
+if (config.options.txtItemsPerPageWithPreview == undefined) config.options.txtItemsPerPageWithPreview=itemsPerPageWithPreviewDefault;
 
 config.shadowTiddlers.AdvancedOptions += "\n<<option chkUseYourSearch>> Use 'Your Search' //([[more options|YourSearch Options]])//";
 
@@ -1739,7 +1743,7 @@ config.macros.search.handler = myMacroSearchHandler;
 var ownsOverwrittenFunctions = function() {
     var result = (config.macros.search.handler == myMacroSearchHandler);
    	return result;
-}
+};
 
 var checkForOtherHijacker = function() {
     if (!ownsOverwrittenFunctions()) {
@@ -1749,7 +1753,7 @@ var checkForOtherHijacker = function() {
     	"the plugins (by changing the names of the tiddlers)\n"+ 
     	"to enable the 'Your Search' features.");
     }
-}
+};
 
 setTimeout(checkForOtherHijacker, 5000);
 
@@ -1758,17 +1762,24 @@ setTimeout(checkForOtherHijacker, 5000);
 
 abego.YourSearch.getStandardRankFunction = function() {
 	return standardRankFunction;
-}
+};
 
 abego.YourSearch.getRankFunction = function() {
 	return abego.YourSearch.getStandardRankFunction();
-}
+};
 
 abego.YourSearch.getCurrentTiddler = function() {
 	return currentTiddler;
-}
+};
 
 } // of "install only once"
+//}}}
+// Used Globals (for JSLint) ==============
+
+// ... JavaScript Core
+/*global 	alert,clearTimeout,confirm */
+// ... TiddlyWiki Core
+/*global 	Tiddler, applyHtmlMacros, clearMessage, createTiddlyElement, createTiddlyButton, createTiddlyText, ensureVisible ,findPosX, highlightHack, findPosY,findWindowWidth, invokeMacro, saveChanges, refreshElements, story */
 
 /***
 %/
