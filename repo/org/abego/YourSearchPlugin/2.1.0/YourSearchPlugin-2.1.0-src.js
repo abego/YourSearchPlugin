@@ -1,11 +1,12 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|SNAPSHOT (2011-12-05)|
-|''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
-|''GitHub:''|https://github.com/abego/YourSearchPlugin|
+|''Version:''|2.1.0 (2006-10-12)|
+|''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin ([[del.icio.us|http://del.icio.us/post?url=http://tiddlywiki.abego-software.de/index.html%23YourSearchPlugin]])|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
 |''Licence:''|[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]|
-|''Copyright:''|&copy; 2005-2011 [[abego Software|http://www.abego-software.de]]|
+|''Copyright:''|&copy; 2005-2006 [[abego Software|http://www.abego-software.de]]|
+|''~CoreVersion:''|2.1.0|
+|''Browser:''|Firefox 1.0.4+; Firefox 1.5; ~InternetExplorer 6.0|
 !About YourSearch
 YourSearch gives you a bunch of new features to simplify and speed up your daily searches in TiddlyWiki. It seamlessly integrates into the standard TiddlyWiki search: just start typing into the 'search' field and explore!
 
@@ -14,47 +15,29 @@ For more information see [[Help|YourSearch Help]].
 This plugin requires TiddlyWiki 2.1. 
 Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearchPlugins supporting older versions of TiddlyWiki.
 !Revision history
-* SNAPSHOT
-** Fix issue with IE8. Thanks to Roger Gallion for reporting and providing the fix.  (For details see: https://github.com/abego/YourSearchPlugin/issues/1)
-* YourSearchPlugin 2.1.5 (2010-02-16)
-** Fix problems with CSS and search textfield. Thanks to Guido Glatzel for reporting.
-* YourSearchPlugin 2.1.4 (2009-09-04)
-** Fix "this command is not supported" error under IE 8. Thanks to rouilj for reporting. (For details see: http://groups.google.com/group/TiddlyWiki/browse_thread/thread/cffee3254381e478)
-* YourSearchPlugin 2.1.3 (2008-04-16)
-** Fix problem with Firefox3. Thanks to Andreas Hoefler for reporting.
-* YourSearchPlugin 2.1.2 (2008-03-17)
-** Bug: on IE (6.0) the first letter is dropped from the search string. Thanks to Kashgarinn and Nick Padfield for reporting.
-* YourSearchPlugin 2.1.1 (2007-03-11)
-** Extend "New tiddler" feature: Ctrl-Return invokes the "new tiddler" feature (create tiddler based on search text)
-** Extend "New tiddler" feature: tiddler's text and tags may also be specified (see abego.parseNewTiddlerCommandLine)
-** Support searching for URLs (like http://www.example.com)
-** Provided extended public API (abego.YourSearch.getFoundTiddlers/getQuery/onShowResult)
-** Clear MessageBox when search field gets focus (so the box no longer hides the search field)
-** Reset search result when TiddlyWiki is changed
-** Fix function abego.BoolExp
-* YourSearchPlugin 2.1.0 (2006-10-12)
+* v2.1.0 (2006-10-12)
 ** Release version with TiddlyWiki 2.1 support
 *** Support (Extended) Field search
 *** Support parenthesis in Boolean Search
 *** Support direct regular expression input
 *** Support JavaScript Expressions for filtering
 *** "new tiddler" feature (create tiddler based on search text)
-* YourSearchPlugin 2.0.2 (2006-02-13)
+* v2.0.2 (2006-02-13)
 ** Bugfix for Firefox 1.5.0.1 related to the "Show prefix" checkbox. Thanks to Ted Pavlic for reporting and to BramChen for fixing. 
 ** Internal
 *** Make "JSLint" conform
-* YourSearchPlugin 2.0.1 (2006-02-05)
+* v2.0.1 (2006-02-05)
 ** Support "Exact Word Match" (use '=' to prefix word)
 ** Support default filter settings (when no filter flags are given in search term)
 ** Rework on the "less than 3 chars search text" feature (thanks to EricShulman)
 ** Better support SinglePageMode when doing "Open all tiddlers" (thanks to EricShulman)
 ** Support Firefox 1.5.0.1
 ** Bug: Fixed a hilite bug in "classic search mode" (thanks to EricShulman)
-* YourSearchPlugin 2.0.0 (2006-01-16)
+* v2.0.0 (2006-01-16)
 ** Add User Interface
-* YourSearchPlugin 1.0.1 (2006-01-06)
+* v1.0.1 (2006-01-06)
 ** Support TiddlyWiki 2.0
-* YourSearchPlugin 1.0.0 (2005-12-28)
+* v1.0.0 (2005-12-28)
 ** initial version
 !Source Code
 ***/
@@ -70,10 +53,10 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 1, revision: 6, isSnapshot: true,
+	major: 2, minor: 1, revision: 0,
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin",
 	licence: "[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]",
-	copyright: "Copyright (c) abego Software GmbH, 2005-2011 (www.abego-software.de)"
+	copyright: "Copyright (c) abego Software GmbH, 2005-2006 (www.abego-software.de)"
 };
 
 if (!window.abego) window.abego = {};
@@ -204,18 +187,6 @@ abego.select = function(array,test,testObj,result) {
 	return result;
 };
 
-// A portable way to "consume an event"
-// 
-// (Uses "stopPropagation" and "preventDefault", but will also "cancelBubble",
-// even though this is a "non-standard method" , just in case).
-//
-abego.consumeEvent = function(e) {
-	if (e.stopPropagation) e.stopPropagation();
-	if (e.preventDefault) e.preventDefault();
-	e.cancelBubble = true;
-	e.returnValue = true;
-};
-
 // Class abego.TiddlerFilterTerm =================================================================
 //
 // Used to check if a tiddler contains a given text.
@@ -252,6 +223,7 @@ abego.TiddlerFilterTerm.prototype.test = function(tiddler) {
 	return this.tester.test(tiddler);
 }
 
+//#import abego.define-namespace
 // Recognize a string like
 //     "Some Title. Some content text #Tag1 #Tag2 Tag3"
 // with the tags and the text being optional.
@@ -299,7 +271,7 @@ abego.parseTiddlerFilterTerm = function(queryText,offset,options) {
 	// group 6: RegExp literal /.../
 	// group 7: scheme '://' nonSpaceChars
 	// group 8: word
-	var re = /\s*(?:(?:\{([^\}]*)\})|(?:(=)|([#%!])|(?:(\w+)\s*\:(?!\/\/))|(?:(?:("(?:(?:\\")|[^"])+")|(?:\/((?:(?:\\\/)|[^\/])+)\/)|(\w+\:\/\/[^\s]+)|([^\s\)\-\"]+)))))/mg; // " <- The syntax highlighting of my editors gets confused without this quote
+	var re = /\s*(?:(?:\{([^\}]*)\})|(?:(=)|([#%!])|(?:(\w+)\s*\:(?!\/\/))|(?:(?:("(?:(?:\\")|[^"])+")|(?:\/((?:(?:\\\/)|[^\/])+)\/)|(\w+\:\/\/[^\s]+)|([^\s\)\-\"]+)))))/mg;
 	var shortCuts = {'!':'title','%':'text','#':'tags'};
 	
 	var fieldNames = {};
@@ -394,15 +366,13 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 	
 	var reNot_Parenthesis = /\s*(\-|not)?(\s*\()?/gi;
 	
-	var parseBoolExpression; //#Pre-declare function name to avoid problem with "shrinkSafe"
-	
 	var parseUnaryExpression = function(offset) {
 		reNot_Parenthesis.lastIndex = offset;
 		var m = reNot_Parenthesis.exec(s);
 		var negate;
 		var result;
 		if (m && m.index == offset) {
-			offset += m[0].length;
+			offset = reNot_Parenthesis.lastIndex;
 			negate = m[1];
 			if (m[2]) {
 				// case:  (...)
@@ -410,7 +380,7 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 				reCloseParenthesis.lastIndex = e.lastIndex;
 				if (!reCloseParenthesis.exec(s))
 					throw "Missing ')'";
-				result = {func: e.func, lastIndex: reCloseParenthesis.lastIndex, markRE: e.markRE};
+				result = {func: e.func, lastIndex: reCloseParenthesis.lastIndex};
 			}
 		}
 		if (!result)
@@ -426,7 +396,7 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 		return result;
 	};
 
-	parseBoolExpression = function(offset) {
+	var parseBoolExpression = function(offset) {
 		var result = parseUnaryExpression(offset);
 		while (1) {
 			var l = result.lastIndex;
@@ -660,9 +630,7 @@ merge(abego.PageWiseRenderer.prototype, {
 		var self = this;
 		var onNaviButtonClick = function(e) {
 			if (!e) var e = window.event;
-
-			abego.consumeEvent(e);
-
+		
 			var pageIndex = abego.toInt(this.getAttribute("page"),0);
 			var oldPageIndex = self.getCurrentPageIndex();
 			if (pageIndex == oldPageIndex)
@@ -1360,6 +1328,17 @@ pager.onPageChanged = function() {
 	refreshResult();
 };
 
+var showResult = function() {
+	if (!resultElement) {
+		resultElement = createTiddlyElement(document.body,"div",yourSearchResultID,"yourSearchResult");
+	} else if (resultElement.parentNode != document.body) {
+		document.body.appendChild(resultElement);
+	}
+
+	refreshResult();
+};
+
+
 var	reopenResultIfApplicable = function() {
 	if (searchInputField == null || !config.options.chkUseYourSearch) return;
 	
@@ -1369,7 +1348,7 @@ var	reopenResultIfApplicable = function() {
 			document.body.appendChild(resultElement);
 			ensureResultIsDisplayedNicely();
 		} else {
-			abego.YourSearch.onShowResult(true);
+			showResult();
 		}
 	}
 };
@@ -1425,7 +1404,10 @@ var myStorySearch = function(text,useCaseSensitive,useRegExp)
 	lastSearchText = text;
 	setLastResults(findMatches(store, text,useCaseSensitive,useRegExp,"title","excludeSearch"));
 
-	abego.YourSearch.onShowResult();
+	highlightHack = lastQuery ? lastQuery.getMarkRegExp() : null;
+	pager.setItems(getLastResults());
+	showResult();
+	highlightHack = null;
 };
 
 
@@ -1518,7 +1500,7 @@ var myMacroSearchHandler = function(place,macroName,params,wikifier,paramString,
 	if (!buttonAtRight)
 		btn = createTiddlyButton(place,this.label,this.prompt,clickHandler);
 		
-	var txt = createTiddlyElement(null,"input",null,"txtOptionInput searchField",null);
+	var txt = createTiddlyElement(place,"input",null,null,null);
 	if(params[0])
 		txt.value = params[0];
 	txt.onkeyup = keyHandler;
@@ -1531,11 +1513,8 @@ var myMacroSearchHandler = function(place,macroName,params,wikifier,paramString,
 		txt.setAttribute("type","search");
 		txt.setAttribute("results","5");
 		}
-	else if (!config.browser.isIE)
+	else
 		txt.setAttribute("type","text");
-
-	if(place)
-		place.appendChild(txt);
 
 	if (buttonAtRight)
 		btn = createTiddlyButton(place,this.label,this.prompt,clickHandler);
@@ -1673,7 +1652,7 @@ config.macros.yourSearch = {
 		copyright: function(place) {
 			var e = createTiddlyElement(place, "a");
 			e.setAttribute("href", "http://www.abego-software.de");
-			e.innerHTML = '<font color="black" face="Arial, Helvetica, sans-serif">&copy; 2005-2008 <b><font color="red">abego</font></b> Software<font>';
+			e.innerHTML = '<font color="black" face="Arial, Helvetica, sans-serif">&copy; 2005-2006 <b><font color="red">abego</font></b> Software<font>';
 		},
 		
 		newTiddlerButton: function(place) {
@@ -2009,30 +1988,7 @@ abego.YourSearch.getCurrentTiddler = function() {
 
 abego.YourSearch.closeResult = function() {
 	closeResult();
-};
-
-// Returns an array of tiddlers that matched the last search
-abego.YourSearch.getFoundTiddlers = function() {
-	return lastResults;
-};
-
-// The last Search query (TiddlerQuery), or null
-abego.YourSearch.getQuery = function() {
-	return lastQuery;
-};
-
-abego.YourSearch.onShowResult = function(useOldResult) {
-	highlightHack = lastQuery ? lastQuery.getMarkRegExp() : null;
-	if (!useOldResult)
-		pager.setItems(getLastResults());
-	if (!resultElement) {
-		resultElement = createTiddlyElement(document.body,"div",yourSearchResultID,"yourSearchResult");
-	} else if (resultElement.parentNode != document.body) {
-		document.body.appendChild(resultElement);
-	}
-	refreshResult();
-	highlightHack = null;
-};
+}
 
 })();
 } // of "install only once"
@@ -2045,7 +2001,7 @@ abego.YourSearch.onShowResult = function(useOldResult) {
 //}}}
 /***
 !Licence and Copyright
-Copyright (c) abego Software ~GmbH, 2005-2011 ([[www.abego-software.de|http://www.abego-software.de]])
+Copyright (c) abego Software ~GmbH, 2005-2006 ([[www.abego-software.de|http://www.abego-software.de]])
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
