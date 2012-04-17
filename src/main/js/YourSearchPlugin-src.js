@@ -1,13 +1,11 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|2.1.5 (2010-02-16)|
+|''Version:''|2.1.6 (2012-04-17)|
+|''Summary:''|Search your TiddlyWiki with advanced search features such as result lists, tiddler preview, result ranking, search filters, combined searches and many more.|
 |''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
+|''GitHub:''|https://github.com/abego/YourSearchPlugin|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
-|''Licence:''|[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]|
-|''Copyright:''|&copy; 2005-2010 [[abego Software|http://www.abego-software.de]]|
-|''~CoreVersion:''|2.1.0|
-|''Community:''|[[del.icio.us|http://del.icio.us/post?url=http://tiddlywiki.abego-software.de/index.html%23YourSearchPlugin]]|
-|''Browser:''|Firefox 1.0.4+; Firefox 1.5; ~InternetExplorer 6.0|
+|''License:''|[[BSD open source license|http://www.abego-software.de/legal/apl-v10.html]]|
 !About YourSearch
 YourSearch gives you a bunch of new features to simplify and speed up your daily searches in TiddlyWiki. It seamlessly integrates into the standard TiddlyWiki search: just start typing into the 'search' field and explore!
 
@@ -16,12 +14,14 @@ For more information see [[Help|YourSearch Help]].
 This plugin requires TiddlyWiki 2.1. 
 Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearchPlugins supporting older versions of TiddlyWiki.
 !Revision history
+* v2.1.6 (2012-04-17)
+** Fix issue with IE8. Thanks to Roger Gallion for reporting and providing the fix.  (For details see: https://github.com/abego/YourSearchPlugin/issues/1)
 * v2.1.5 (2010-02-16)
-** Fixed problems with CSS and search textfield. Thanks to Guido Glatzel for reporting.
+** Fix problems with CSS and search textfield. Thanks to Guido Glatzel for reporting.
 * v2.1.4 (2009-09-04)
-** Fixed "this command is not supported" error under IE 8. Thanks to rouilj for reporting. (For details see: http://groups.google.com/group/TiddlyWiki/browse_thread/thread/cffee3254381e478)
+** Fix "this command is not supported" error under IE 8. Thanks to rouilj for reporting. (For details see: http://groups.google.com/group/TiddlyWiki/browse_thread/thread/cffee3254381e478)
 * v2.1.3 (2008-04-16)
-** Fixed problem with Firefox3. Thanks to Andreas Hoefler for reporting.
+** Fix problem with Firefox3. Thanks to Andreas Hoefler for reporting.
 * v2.1.2 (2008-03-17)
 ** Bug: on IE (6.0) the first letter is dropped from the search string. Thanks to Kashgarinn and Nick Padfield for reporting.
 * v2.1.1 (2007-03-11)
@@ -70,10 +70,10 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 1, revision: 5,
+	major: 2, minor: 1, revision: 6, isSnapshot: true,
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin",
 	licence: "[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]",
-	copyright: "Copyright (c) abego Software GmbH, 2005-2010 (www.abego-software.de)"
+	copyright: "Copyright (c) abego Software GmbH, 2005-2012 (www.abego-software.de)"
 };
 
 if (!window.abego) window.abego = {};
@@ -1531,7 +1531,7 @@ var myMacroSearchHandler = function(place,macroName,params,wikifier,paramString,
 		txt.setAttribute("type","search");
 		txt.setAttribute("results","5");
 		}
-	else
+	else if (!config.browser.isIE)
 		txt.setAttribute("type","text");
 
 	if(place)
@@ -2045,7 +2045,7 @@ abego.YourSearch.onShowResult = function(useOldResult) {
 //}}}
 /***
 !Licence and Copyright
-Copyright (c) abego Software ~GmbH, 2005-2010 ([[www.abego-software.de|http://www.abego-software.de]])
+Copyright (c) abego Software ~GmbH, 2005-2012 ([[www.abego-software.de|http://www.abego-software.de]])
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
