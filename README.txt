@@ -26,7 +26,7 @@ located at:
 	http://tiddlywiki.abego-software.de/#YourSearchPlugin
 
 
-LICENCE
+LICENSE
 
 abego Software releases the plugin under a BSD open source license.
 (http://www.abego-software.de/legal/apl-v10.html)

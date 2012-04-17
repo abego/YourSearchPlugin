@@ -1,1 +1,2 @@
-./lib/buildTiddlyWikiPlugin.sh YourSearchPlugin
+d=`pwd`
+./lib/pluginTools/buildPlugin.sh `basename "$d"`

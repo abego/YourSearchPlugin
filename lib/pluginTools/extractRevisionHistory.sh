@@ -6,4 +6,4 @@
 #     !Source Code
 #
 # The headline is not included.
-awk ' $0 == "!Source Code" {output=0} output == 1 {print} $0 == "!Revision history" {output=1} '
+awk ' /!Source Code/ {output=0} output == 1 {print} /!Revision history/ {output=1} '
