@@ -1,0 +1,1 @@
+* test the "buttonAtRight" feature (was modified after 2.1.6)

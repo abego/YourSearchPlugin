@@ -1,8 +1,9 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|2.1.6 (2012-04-17)|
+|''Version:''|2.1.6 (2012-04-19)|
 |''Summary:''|Search your TiddlyWiki with advanced search features such as result lists, tiddler preview, result ranking, search filters, combined searches and many more.|
 |''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
+|''Twitter:''|[[@abego|https://twitter.com/#!/abego]]|
 |''GitHub:''|https://github.com/abego/YourSearchPlugin|
 |''Author:''|UdoBorkowski (ub [at] abego-software [dot] de)|
 |''License:''|[[BSD open source license|http://www.abego-software.de/legal/apl-v10.html]]|
@@ -14,8 +15,9 @@ For more information see [[Help|YourSearch Help]].
 This plugin requires TiddlyWiki 2.1. 
 Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearchPlugins supporting older versions of TiddlyWiki.
 !Revision history
-* v2.1.6 (2012-04-17)
+* v2.1.6 (2012-04-19)
 ** Fix issue with IE8. Thanks to Roger Gallion for reporting and providing the fix.  (For details see: https://github.com/abego/YourSearchPlugin/issues/1)
+** remove warnings
 * v2.1.5 (2010-02-16)
 ** Fix problems with CSS and search textfield. Thanks to Guido Glatzel for reporting.
 * v2.1.4 (2009-09-04)
@@ -70,7 +72,7 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 1, revision: 6, isSnapshot: true,
+	major: 2, minor: 1, revision: 6,
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin",
 	licence: "[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]",
 	copyright: "Copyright (c) abego Software GmbH, 2005-2012 (www.abego-software.de)"
@@ -132,7 +134,7 @@ abego.countStrings = function(text, s) {
 	var len = s.length;
 	var n = 0;
 	var lastIndex = 0;
-	while (1) {
+	while (true) {
 		var i = text.indexOf(s, lastIndex);
 		if (i < 0)
 			return n;
@@ -246,11 +248,11 @@ abego.TiddlerFilterTerm = function(text,options) {
 	var regExp = new RegExp(reText, "m"+(options.caseSensitive ? "" : "i"));
 
 	this.tester = new abego.MultiFieldRegExpTester(regExp, options.fields, options.withExtendedFields);
-}
+};
 
 abego.TiddlerFilterTerm.prototype.test = function(tiddler) {
 	return this.tester.test(tiddler);
-}
+};
 
 // Recognize a string like
 //     "Some Title. Some content text #Tag1 #Tag2 Tag3"
@@ -280,7 +282,7 @@ abego.parseNewTiddlerCommandLine = function(s) {
 		return {title: m[1].trim(), params: r}; 
 	} else
 		return {title: s.trim(),params: [[]]};
-}	
+};	
 // 		options.defaultFields [@seeOptionDefault abego.TiddlerFilterTerm.fields] fields to check when no fields are explicitly specified in queryText.
 // 		options.withExtendedFields [@seeOptionDefault abego.TiddlerFilterTerm.withExtendedFields] when true and no fields are explicitly specified in queryText also the extended fields are considered (in addition to the ones in defaultFields).
 // @seeOptions abego.TiddlerFilterTerm (-fields -fullWordMatch -withExtendedFields)
@@ -303,9 +305,9 @@ abego.parseTiddlerFilterTerm = function(queryText,offset,options) {
 	var shortCuts = {'!':'title','%':'text','#':'tags'};
 	
 	var fieldNames = {};
-	var fullWordMatch;
+	var fullWordMatch = false;
 	re.lastIndex = offset;
-	while (1) {
+	while (true) {
 		var i = re.lastIndex;
 		var m = re.exec(queryText);
 		if (!m || m.index != i) 
@@ -330,7 +332,7 @@ abego.parseTiddlerFilterTerm = function(queryText,offset,options) {
 			var textIsRegExp = m[6];
 			var text = m[5] ? window.eval(m[5]) : m[6] ? m[6] :  m[7] ? m[7] : m[8];
 			
-			var options = abego.copyOptions(options);
+			options = abego.copyOptions(options);
 			options.fullWordMatch = fullWordMatch;
 			options.textIsRegExp = textIsRegExp;
 
@@ -387,10 +389,8 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 	this.s = s;
 	var defaultOperationIs_OR = options && options.defaultOperationIs_OR;
 	
-	var reStart = /\s*(?:(\-|not)|(\())/gi; 		// group 1: NOT, group2 "("
 	var reCloseParenthesis = /\s*\)/g;  			// match )
 	var reAndOr = /\s*(?:(and|\&\&)|(or|\|\|))/gi; 	// group 1: AND, group 2: OR
-	var reNonWhiteSpace = /\s*[^\)\s]/g;
 	
 	var reNot_Parenthesis = /\s*(\-|not)?(\s*\()?/gi;
 	
@@ -399,8 +399,8 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 	var parseUnaryExpression = function(offset) {
 		reNot_Parenthesis.lastIndex = offset;
 		var m = reNot_Parenthesis.exec(s);
-		var negate;
-		var result;
+		var negate = false;
+		var result = null;
 		if (m && m.index == offset) {
 			offset += m[0].length;
 			negate = m[1];
@@ -417,7 +417,7 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 			result = parseTermFunc(s,offset,options);
 
 		if (negate) {
-			result.func = (function(f){return function(context) {return !f(context);}})(result.func);
+			result.func = (function(f){return function(context) {return !f(context);};})(result.func);
 			// don't mark patterns that are negated
 			// (This is essential since the marking may also be used to calculate "ranks". If we
 			// would also count the negated matches (i.e. that should not exist) the rank may get too high)
@@ -428,7 +428,7 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 
 	parseBoolExpression = function(offset) {
 		var result = parseUnaryExpression(offset);
-		while (1) {
+		while (true) {
 			var l = result.lastIndex;
 			reAndOr.lastIndex = l;
 			var m = reAndOr.exec(s);
@@ -465,7 +465,7 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 	this.evalFunc = expr.func;
 	if (expr.markRE)
 		this.markRegExp = new RegExp(expr.markRE, options.caseSensitive ? "mg" : "img");
-}
+};
 
 abego.BoolExp.prototype.exec = function() {
 	return this.evalFunc.apply(this,arguments);
@@ -488,7 +488,7 @@ abego.MultiFieldRegExpTester = function(re, fields, withExtendedFields) {
 	this.re = re;
 	this.fields = fields ? fields : ["title","text","tags"];
 	this.withExtendedFields = withExtendedFields;
-}
+};
 
 // Returns the name of the first field found that value succeeds the given test,
 // or null when no such field is found
@@ -510,7 +510,7 @@ abego.MultiFieldRegExpTester.prototype.test = function(tiddler) {
 				}, true);
 		
 	return null;
-}
+};
 
 // Class abego.TiddlerQuery ==================================================================
 //
@@ -545,7 +545,7 @@ abego.TiddlerQuery = function(queryText,caseSensitive,useRegExp,defaultFields,wi
 	this.getWithExtendedFields = function() {
 		return withExtendedFields;
 	};
-}
+};
 
 // Returns true iff the query includes the given tiddler
 //
@@ -610,7 +610,7 @@ merge(abego.PageWiseRenderer.prototype, {
 	},
 	
 	getLastPageIndex: function() {
-		return Math.floor((this.getItemsCount()-1) / this.getItemsPerPage())
+		return Math.floor((this.getItemsCount()-1) / this.getItemsPerPage());
 	},
 	
 	setFirstIndexOnPage: function(index) {
@@ -659,7 +659,7 @@ merge(abego.PageWiseRenderer.prototype, {
 	
 		var self = this;
 		var onNaviButtonClick = function(e) {
-			if (!e) var e = window.event;
+			if (!e) e = window.event;
 
 			abego.consumeEvent(e);
 
@@ -870,8 +870,6 @@ abego.LimitedTextRenderer = function() {
 		var result = [];
 		if (matchRegExp) {
 			var startIndex = 0;
-			var n = s.length;
-			var currentLen = 0;
 			do {
 				matchRegExp.lastIndex = startIndex;
 				var match = matchRegExp.exec(s);
@@ -1078,8 +1076,8 @@ abego.YourSearch = {};
 //----------------------------------------------------------------------------
 
 // Model Variables
-var lastResults; // Array of tiddlers that matched the last search
-var lastQuery; // The last Search query (TiddlerQuery)
+var lastResults = undefined; // Array of tiddlers that matched the last search
+var lastQuery = undefined; // The last Search query (TiddlerQuery)
 
 var setLastResults = function(array) {
 	lastResults = array;
@@ -1197,12 +1195,12 @@ var itemsPerPageWithPreviewDefault = 10; // Default maximum number of items on o
 var yourSearchResultID = "yourSearchResult";
 var yourSearchResultItemsID = "yourSearchResultItems";
 
-var lastSearchText; // The last search text, as passed to findMatches
+var lastSearchText = null; // The last search text, as passed to findMatches
 
-var resultElement; // The (popup) DOM element containing the search result [may be null]
-var searchInputField; // The "search" input field
-var searchButton; // The "search" button
-var lastNewTiddlerButton;
+var resultElement = null; // The (popup) DOM element containing the search result [may be null]
+var searchInputField = null; // The "search" input field
+var searchButton = null; // The "search" button
+var lastNewTiddlerButton = null;
 
 var initStylesheet = function() {
 	if (version.extensions.YourSearchPlugin.styleSheetInited) 
@@ -1210,7 +1208,7 @@ var initStylesheet = function() {
 		
 	version.extensions.YourSearchPlugin.styleSheetInited = true;
 	setStylesheet(store.getTiddlerText("YourSearchStyleSheet"),"yourSearch");
-}
+};
 
 var isResultOpen = function() {
 	return resultElement != null && resultElement.parentNode == document.body;
@@ -1292,8 +1290,8 @@ var	ensureResultIsDisplayedNicely = function() {
 
 
 
-var indexInPage; // The index (in the current page) of the tiddler currently rendered.
-var currentTiddler; // While rendering the page the tiddler that is currently rendered.
+var indexInPage = undefined; // The index (in the current page) of the tiddler currently rendered.
+var currentTiddler = undefined; // While rendering the page the tiddler that is currently rendered.
 
 var pager = new abego.PageWiseRenderer();
 
@@ -1450,7 +1448,7 @@ var myMacroSearchHandler = function(place,macroName,params,wikifier,paramString,
 		};
 	var keyHandler = function(e)
 		{
-		if (!e) var e = window.event;
+		if (!e) e = window.event;
 		searchInputField = this;
 		switch(e.keyCode)
 			{
@@ -1511,13 +1509,10 @@ var myMacroSearchHandler = function(place,macroName,params,wikifier,paramString,
 
 	
 	var args = paramString.parseParams("list",null,true);
+	// either create the button to the left or the right of the text.
 	var buttonAtRight = getFlag(args, "buttonAtRight");
 	var sizeTextbox = getParam(args, "sizeTextbox", this.sizeTextbox);
 	
-	var btn;
-	if (!buttonAtRight)
-		btn = createTiddlyButton(place,this.label,this.prompt,clickHandler);
-		
 	var txt = createTiddlyElement(null,"input",null,"txtOptionInput searchField",null);
 	if(params[0])
 		txt.value = params[0];
@@ -1534,11 +1529,14 @@ var myMacroSearchHandler = function(place,macroName,params,wikifier,paramString,
 	else if (!config.browser.isIE)
 		txt.setAttribute("type","text");
 
-	if(place)
+	var btn = createTiddlyButton(null,this.label,this.prompt,clickHandler);
+	if (place) {
+		if (!buttonAtRight)
+			place.appendChild(btn);
 		place.appendChild(txt);
-
-	if (buttonAtRight)
-		btn = createTiddlyButton(place,this.label,this.prompt,clickHandler);
+		if (buttonAtRight)
+			place.appendChild(btn);
+	}
 
 	searchInputField = txt;
 	searchButton = btn;
@@ -1599,8 +1597,8 @@ var getShortCutNumber = function() {
 
 var limitedTextRenderer = new abego.LimitedTextRenderer();
 var renderLimitedText = function(place, s, maxLen) {
-	limitedTextRenderer.render(place,s,maxLen,lastQuery.getMarkRegExp())
-}
+	limitedTextRenderer.render(place,s,maxLen,lastQuery.getMarkRegExp());
+};
 
 // When any tiddler are changed reset the result.
 // 
@@ -1685,7 +1683,7 @@ config.macros.yourSearch = {
 				btn.onclick = function() {
 					closeResult();
 					oldOnClick.apply(this,arguments);
-				}
+				};
 				lastNewTiddlerButton = btn;
 			}
 		},
@@ -1703,7 +1701,7 @@ config.macros.yourSearch = {
 		},
 		
 		closeButton: function(place,macroName,params,wikifier,paramString,tiddler) {
-			var button = createTiddlyButton(place, "close", "Close the Search Results (Shortcut: ESC)", closeResult);
+			createTiddlyButton(place, "close", "Close the Search Results (Shortcut: ESC)", closeResult);
 		},
 		
 		openAllButton: function(place,macroName,params,wikifier,paramString,tiddler) {
@@ -1747,8 +1745,6 @@ config.macros.yourSearch = {
 		},
 		
 		chkPreviewText: function(place,macroName,params,wikifier,paramString,tiddler) {
-			var optionParams = params.slice(1).join(" ");
-			
 			var elem = createOptionWithRefresh(place, "chkPreviewText", wikifier,tiddler);
 			elem.setAttribute("accessKey", "P");
 			elem.title = "Show text preview of found tiddlers (Shortcut: Alt-P)";	

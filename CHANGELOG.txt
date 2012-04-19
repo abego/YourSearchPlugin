@@ -1,5 +1,6 @@
-* v2.1.6 (2012-04-17)
+* v2.1.6 (2012-04-19)
 ** Fix issue with IE8. Thanks to Roger Gallion for reporting and providing the fix.  (For details see: https://github.com/abego/YourSearchPlugin/issues/1)
+** remove warnings
 * v2.1.5 (2010-02-16)
 ** Fix problems with CSS and search textfield. Thanks to Guido Glatzel for reporting.
 * v2.1.4 (2009-09-04)
