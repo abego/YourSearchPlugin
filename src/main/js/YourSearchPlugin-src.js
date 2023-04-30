@@ -1915,7 +1915,7 @@ config.shadowTiddlers["YourSearch Options"] =
 "view text: <<option txtItemsPerPageWithPreview>>|\n";
 			
 config.shadowTiddlers["YourSearchStyleSheet"] = 
-"/***\n!~YourSearchResult Stylesheet\n***/\n/*{{{*/\n.yourSearchResult {\n\tposition: absolute;\n\twidth: 800"+
+"/***\n!~YourSearchResult Stylesheet\n***/\n/*{{{*/\n.yourSearchResult {\n\tz-index: 10;\n\tposition: absolute;\n\twidth: 800"+
 "px;\n\n\tpadding: 0.2em;\n\tlist-style: none;\n\tmargin: 0;\n\n\tbackground: #ffd;\n\tborder: 1px solid DarkGra"+
 "y;\n}\n\n/*}}}*/\n/***\n!!Summary Section\n***/\n/*{{{*/\n.yourSearchResult .summary {\n\tborder-bottom-width:"+
 " thin;\n\tborder-bottom-style: solid;\n\tborder-bottom-color: #999999;\n\tpadding-bottom: 4px;\n}\n\n.yourSea"+
