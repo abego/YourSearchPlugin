@@ -1944,7 +1944,7 @@ config.shadowTiddlers["YourSearchResultTemplate"] =
 "kButton 'YourSearch Options' options 'Configure YourSearch'\"></span>\n\t\t<span macro=\"yourSearch linkB"+
 "utton 'YourSearch Help' help 'Get help how to use YourSearch'\"></span>\n\t\t<span macro=\"yourSearch clo"+
 "seButton\"></span>\n\t</td>\n  </tr>\n</tbody></table>\n\n<!-- The List of Found Tiddlers ================="+
-"=========================== -->\n<div id=\"yourSearchResultItems\" itemsPerPage=\"25\" itemsPerPageWithPr"+
+"=========================== -->\n<div id=\""+yourSearchResultItemsID+"\" itemsPerPage=\"25\" itemsPerPageWithPr"+
 "eview=\"10\"></div>\n\n<!-- The Footer (with the Navigation) ==========================================="+
 "= -->\n<table class=\"yourSearchFooter\" border=\"0\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\"><tbody"+
 ">\n  <tr>\n\t<td align=\"left\">\n\t\tResult page: <span class=\"yourSearchNaviBar\" macro=\"yourSearch naviBar"+
