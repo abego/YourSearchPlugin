@@ -1934,7 +1934,7 @@ config.shadowTiddlers["YourSearchStyleSheet"] =
 ";\n\tcolor: blue;\n}\n/*}}}*/\n";
 
 config.shadowTiddlers["YourSearchResultTemplate"] =
-"<!--\n{{{\n-->\n<span macro=\"yourSearch if found\">\n<!-- The Summary Header ============================"+
+"<!--{{{-->\n<span macro=\"yourSearch if found\">\n<!-- The Summary Header ============================"+
 "================ -->\n<table class=\"summary\" border=\"0\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\">"+
 "<tbody>\n  <tr>\n\t<td align=\"left\">\n\t\tYourSearch Result <span class=\"yourSearchRange\" macro=\"yourSearc"+
 "h itemRange\"></span>\n\t\t&nbsp;of&nbsp;<span class=\"yourSearchCount\" macro=\"yourSearch count\"></span>\n"+
@@ -1957,13 +1957,13 @@ config.shadowTiddlers["YourSearchResultTemplate"] =
 "d class=\"yourSearchButtons\" align=\"right\">\n\t\t<span macro=\"yourSearch newTiddlerButton\"></span>\n\t\t<span macro=\"yourSearch linkButton 'YourSearch Options'"+
 " options 'Configure YourSearch'\"></span>\n\t\t<span macro=\"yourSearch linkButton 'YourSearch Help' help"+
 " 'Get help how to use YourSearch'\"></span>\n\t\t<span macro=\"yourSearch closeButton\"></span>\n\t</td>\n  <"+
-"/tr>\n</tbody></table>\n</span>\n\n\n<!--\n}}}\n-->\n";
+"/tr>\n</tbody></table>\n</span>\n<!--}}}-->";
 
 config.shadowTiddlers["YourSearchItemTemplate"] = 
-"<!--\n{{{\n-->\n<span class='yourSearchNumber' macro='foundTiddler number'></span>\n<span class='yourSea"+
+"<!--{{{-->\n<span class='yourSearchNumber' macro='foundTiddler number'></span>\n<span class='yourSea"+
 "rchTitle' macro='foundTiddler title'/></span>&nbsp;-&nbsp;\n<span class='yourSearchTags' macro='found"+
 "Tiddler field tags 50'/></span>\n<span macro=\"yourSearch if previewText\"><div class='yourSearchText' macro='fo"+
-"undTiddler field text 250'/></div></span>\n<!--\n}}}\n-->";
+"undTiddler field text 250'/></div></span>\n<!--}}}-->";
 
 config.shadowTiddlers["YourSearch"] = "<<tiddler [[YourSearch Help]]>>";
 
