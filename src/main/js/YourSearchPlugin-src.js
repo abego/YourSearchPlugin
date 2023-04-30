@@ -202,7 +202,7 @@ abego.select = function(array, test, testObj, result) {
 	array.forEach(function(t) {
 		if (test.call(testObj, t))
 			result.push(t);
-		});
+	});
 	return result;
 };
 
@@ -264,8 +264,7 @@ abego.TiddlerFilterTerm.prototype.test = function(tiddler) {
 //
 abego.parseNewTiddlerCommandLine = function(s) {
 	var m = /(.*?)\.(?:\s+|$)([^#]*)(#.*)?/.exec(s);
-	if (!m)
-		m = /([^#]*)()(#.*)?/.exec(s);
+	if (!m) m = /([^#]*)()(#.*)?/.exec(s);
 	if (m) {
 		var r;
 		if (m[3]) {
@@ -276,12 +275,12 @@ abego.parseNewTiddlerCommandLine = function(s) {
 
 		// add the text parameter
 		var text = m[2] ? m[2].trim() : "";
-		r.push({name: "text", value: text});
+		r.push({ name: "text", value: text });
 		r[0].text = [text];
 
-		return {title: m[1].trim(), params: r};
+		return { title: m[1].trim(), params: r };
 	} else
-		return {title: s.trim(), params: [[]]};
+		return { title: s.trim(), params: [[]] };
 };
 // 		options.defaultFields [@seeOptionDefault abego.TiddlerFilterTerm.fields] fields to check when no fields are explicitly specified in queryText.
 // 		options.withExtendedFields [@seeOptionDefault abego.TiddlerFilterTerm.withExtendedFields] when true and no fields are explicitly specified in queryText also the extended fields are considered (in addition to the ones in defaultFields).
@@ -302,7 +301,7 @@ abego.parseTiddlerFilterTerm = function(queryText, offset, options) {
 	// group 7: scheme '://' nonSpaceChars
 	// group 8: word
 	var re = /\s*(?:(?:\{([^\}]*)\})|(?:(=)|([#%!])|(?:(\w+)\s*\:(?!\/\/))|(?:(?:("(?:(?:\\")|[^"])+")|(?:\/((?:(?:\\\/)|[^\/])+)\/)|(\w+\:\/\/[^\s]+)|([^\s\)\-\"]+)))))/mg; // " <- The syntax highlighting of my editors gets confused without this quote
-	var shortCuts = {'!': 'title', '%': 'text', '#': 'tags'};
+	var shortCuts = { '!': 'title', '%': 'text', '#': 'tags' };
 
 	var fieldNames = {};
 	var fullWordMatch = false;
@@ -318,9 +317,11 @@ abego.parseTiddlerFilterTerm = function(queryText, offset, options) {
 			if (!code)
 				throw "Invalid {...} syntax";
 			var f = Function("tiddler", "return (" + code + ");");
-			return {func: f,
-					lastIndex: lastIndexRef.lastIndex,
-					markRE: null};
+			return {
+				func: f,
+				lastIndex: lastIndexRef.lastIndex,
+				markRE: null
+			};
 		}
 		if (m[2])
 			fullWordMatch = true;
@@ -349,9 +350,11 @@ abego.parseTiddlerFilterTerm = function(queryText, offset, options) {
 			var markREText = textIsRegExp ? text : text.escapeRegExp();
 			if (markREText && fullWordMatch)
 				markREText = "\\b" + markREText + "\\b";
-			return {func: function(tiddler) {return term.test(tiddler);},
-					lastIndex: re.lastIndex,
-					markRE: markREText ? "(?:" + markREText + ")" : null};
+			return {
+				func: function(tiddler) { return term.test(tiddler) },
+				lastIndex: re.lastIndex,
+				markRE: markREText ? "(?:" + markREText + ")" : null
+			};
 		}
 	}
 };
@@ -408,16 +411,14 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 				// case:  (...)
 				var e = parseBoolExpression(offset);
 				reCloseParenthesis.lastIndex = e.lastIndex;
-				if (!reCloseParenthesis.exec(s))
-					throw "Missing ')'";
-				result = {func: e.func, lastIndex: reCloseParenthesis.lastIndex, markRE: e.markRE};
+				if (!reCloseParenthesis.exec(s)) throw "Missing ')'";
+				result = { func: e.func, lastIndex: reCloseParenthesis.lastIndex, markRE: e.markRE };
 			}
 		}
-		if (!result)
-			result = parseTermFunc(s, offset, options);
+		if (!result) result = parseTermFunc(s, offset, options);
 
 		if (negate) {
-			result.func = (function(f){return function(context) {return !f(context);};})(result.func);
+			result.func = (function(f) { return function(context) { return !f(context) } })(result.func);
 			// don't mark patterns that are negated
 			// (This is essential since the marking may also be used to calculate "ranks". If we
 			// would also count the negated matches (i.e. that should not exist) the rank may get too high)
@@ -449,10 +450,10 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 				isOrCase = defaultOperationIs_OR;
 			}
 			result.func = (function(func1, func2, isOrCase) {
-					return isOrCase
-						? function(context) {return func1(context) || func2(context);}
-						: function(context) {return func1(context) && func2(context);};
-				})(result.func, nextExp.func, isOrCase);
+				return isOrCase
+					? function(context) { return func1(context) || func2(context) }
+					: function(context) { return func1(context) && func2(context) };
+			})(result.func, nextExp.func, isOrCase);
 			result.lastIndex = nextExp.lastIndex;
 			if (!result.markRE)
 				result.markRE = nextExp.markRE;
@@ -463,8 +464,7 @@ abego.BoolExp = function(s, parseTermFunc, options) {
 
 	var expr = parseBoolExpression(0);
 	this.evalFunc = expr.func;
-	if (expr.markRE)
-		this.markRegExp = new RegExp(expr.markRE, options.caseSensitive ? "mg" : "img");
+	if (expr.markRE) this.markRegExp = new RegExp(expr.markRE, options.caseSensitive ? "mg" : "img");
 };
 
 abego.BoolExp.prototype.exec = function() {
@@ -502,12 +502,11 @@ abego.MultiFieldRegExpTester.prototype.test = function(tiddler) {
 			return this.fields[i];
 	}
 	// Check the extended fields (if required)
-	if (this.withExtendedFields)
-		return store.forEachField(
-				tiddler,
-				function(tiddler, fieldName, value) {
-					return typeof value == "string" && re.test(value) ? fieldName : null;
-				}, true);
+	if (this.withExtendedFields) return store.forEachField(
+		tiddler,
+		function(tiddler, fieldName, value) {
+			return typeof value == "string" && re.test(value) ? fieldName : null;
+		}, true);
 
 	return null;
 };
@@ -523,11 +522,12 @@ abego.TiddlerQuery = function(queryText, caseSensitive, useRegExp, defaultFields
 		this.tester = new abego.MultiFieldRegExpTester(this.regExp, defaultFields, withExtendedFields);
 	} else {
 		this.expr = new abego.BoolExp(
-				queryText,
-				abego.parseTiddlerFilterTerm, {
+			queryText,
+			abego.parseTiddlerFilterTerm, {
 				defaultFields: defaultFields,
 				caseSensitive: caseSensitive,
-				withExtendedFields: withExtendedFields});
+				withExtendedFields: withExtendedFields
+			});
 	}
 
 	this.getQueryText = function() {
@@ -568,7 +568,7 @@ abego.TiddlerQuery.prototype.filter = function(tiddlers) {
 abego.TiddlerQuery.prototype.getMarkRegExp = function() {
 	if (this.regExp) {
 		// Only use the regExp for marking when it does not match the empty string.
-		return "".search(this.regExp) >= 0 ? null :  this.regExp;
+		return "".search(this.regExp) >= 0 ? null : this.regExp;
 	}
 	return this.expr.getMarkRegExp();
 };
@@ -750,7 +750,7 @@ abego.LimitedTextRenderer = function() {
 
 		// When there are no ranges in ranges, just add it.
 		if (n == 0) {
-			ranges.push({start: startIndex, end: endIndex});
+			ranges.push({ start: startIndex, end: endIndex });
 			return;
 		}
 
@@ -780,7 +780,7 @@ abego.LimitedTextRenderer = function() {
 					unionStart = Math.min(unionStart, r.start);
 					unionEnd = Math.max(unionEnd, r.end);
 				}
-				ranges.splice(i, rIndex - i, {start: unionStart, end: unionEnd});
+				ranges.splice(i, rIndex - i, { start: unionStart, end: unionEnd });
 				return;
 			}
 
@@ -795,7 +795,7 @@ abego.LimitedTextRenderer = function() {
 		// i is the index of the first range right to it (or ranges.length, when the new range
 		// becomes the right most range).
 
-		ranges.splice(i, 0, {start: startIndex, end: endIndex});
+		ranges.splice(i, 0, { start: startIndex, end: endIndex });
 	};
 
 	// Returns the total size of all Ranges in ranges
@@ -825,14 +825,14 @@ abego.LimitedTextRenderer = function() {
 		if (!isWordChar(s[offset])) return null;
 
 		for (var i = offset - 1; i >= 0 && isWordChar(s[i]); i--)
-			{/*empty*/}
+			{ /*empty*/ }
 
 		var startIndex = i + 1;
 		var n = s.length;
 		for (i = offset + 1; i < n && isWordChar(s[i]); i++)
-			{/*empty*/}
+			{ /*empty*/ }
 
-		return {start: startIndex, end: i};
+		return { start: startIndex, end: i };
 	};
 
 	var moveToWordBorder = function(s, offset, isStartOffset) {
@@ -876,17 +876,17 @@ abego.LimitedTextRenderer = function() {
 				if (match) {
 					if (startIndex < match.index) {
 						var t = s.substring(startIndex, match.index);
-						result.push({text: t});
+						result.push({ text: t });
 					}
-					result.push({text: match[0], isMatch: true});
+					result.push({ text: match[0], isMatch: true });
 					startIndex = match.index + match[0].length;
 				} else {
-					result.push({text: s.substr(startIndex)});
+					result.push({ text: s.substr(startIndex) });
 					break;
 				}
 			} while (true);
 		} else {
-			result.push({text: s});
+			result.push({ text: s });
 		}
 		return result;
 	};
@@ -922,7 +922,7 @@ abego.LimitedTextRenderer = function() {
 		contextStart = moveToWordBorder(s, contextStart, true);
 		contextEnd = moveToWordBorder(s, contextEnd, false);
 
-		return {start: contextStart, end: contextEnd};
+		return { start: contextStart, end: contextEnd };
 	};
 
 	// Get all ranges around matched substrings with their contexts
@@ -1157,9 +1157,7 @@ var findMatches = function(store, searchText, caseSensitive, useRegExp, sortFiel
 	}
 
 	// sort the result, taking care of the rank and the sortField
-	if(!sortField) {
-		sortField = "title";
-	}
+	if(!sortField) sortField = "title";
 
 	var sortFunction = function (a, b) {
 		var searchRankDiff = a.searchRank - b.searchRank;
@@ -1223,8 +1221,7 @@ var closeResult = function() {
 // Closes the Search Result window and displays the tiddler
 // defined by the "tiddlyLink" attribute of this element
 //
-var closeResultAndDisplayTiddler = function(e)
-{
+var closeResultAndDisplayTiddler = function(e) {
 	closeResult();
 
 	var title = this.getAttribute("tiddlyLink");
@@ -1484,7 +1481,7 @@ var myMacroSearchHandler = function(place, macroName, params, wikifier, paramStr
 					if(searchTimeout)
 						clearTimeout(searchTimeout);
 					var txt = this;
-					searchTimeout = setTimeout(function() {doSearch(txt);}, 500);
+					searchTimeout = setTimeout(function() { doSearch(txt) }, 500);
 					}
 				}
 			else
@@ -1633,10 +1630,10 @@ config.macros.yourSearch = {
 	},
 
 	tests: {
-		"true": function() {return true;},
-		"false": function() {return false;},
-		"found": function() {return getLastResultsCount() > 0;},
-		"previewText": function() {return config.options.chkPreviewText;}
+		"true": function() { return true },
+		"false": function() { return false },
+		"found": function() { return getLastResultsCount() > 0 },
+		"previewText": function() { return config.options.chkPreviewText }
 	},
 
 	funcs: {
@@ -1826,7 +1823,8 @@ config.macros.foundTiddler = {
 // Configuration Stuff
 //----------------------------------------------------------------------------
 
-var opts = {chkUseYourSearch: true,
+var opts = {
+	chkUseYourSearch: true,
 	chkPreviewText: true,
 	chkSearchAsYouType: true,
 	chkSearchInTitle: true,
@@ -1834,7 +1832,8 @@ var opts = {chkUseYourSearch: true,
 	chkSearchInTags: true,
 	chkSearchExtendedFields: true,
 	txtItemsPerPage: itemsPerPageDefault,
-	txtItemsPerPageWithPreview: itemsPerPageWithPreviewDefault};
+	txtItemsPerPageWithPreview: itemsPerPageWithPreviewDefault
+};
 for (var n in opts)
 	if (config.options[n] == undefined) config.options[n] = opts[n];
 
