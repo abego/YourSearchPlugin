@@ -81,7 +81,7 @@ version.extensions.YourSearchPlugin = {
 if (!window.abego) window.abego = {};
 
 // define the Array forEach when not yet defined (e.g. by Mozilla)
-if (!Array.forEach) {
+if (!Array.forEach && !Array.prototype.forEach) {
     Array.forEach = function(obj, callback, thisObj) {
         for (var i = 0, len = obj.length; i < len; i++)
             callback.call(thisObj, obj[i], i, obj);
