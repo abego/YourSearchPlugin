@@ -1415,8 +1415,7 @@ addEvent(document, "keyup", onDocumentKeyup);
 // Our Search Macro Hijack Function ==========================================
 
 // Helper
-var myStorySearch = function(text, useCaseSensitive, useRegExp)
-{
+var myStorySearch = function(text, useCaseSensitive, useRegExp) {
 	lastSearchText = text;
 	setLastResults(findMatches(store, text, useCaseSensitive, useRegExp, "title", "excludeSearch"));
 
@@ -1424,31 +1423,27 @@ var myStorySearch = function(text, useCaseSensitive, useRegExp)
 };
 
 
-var myMacroSearchHandler = function(place, macroName, params, wikifier, paramString, tiddler)
-{
+var myMacroSearchHandler = function(place, macroName, params, wikifier, paramString, tiddler) {
 	initStylesheet();
 
 	lastSearchText = "";
 	var searchTimeout = null;
-	var doSearch = function(txt)
-		{
+	var doSearch = function(txt) {
 		if (config.options.chkUseYourSearch)
 			myStorySearch(txt.value, config.options.chkCaseSensitiveSearch, config.options.chkRegExpSearch);
 		else
 			story.search(txt.value, config.options.chkCaseSensitiveSearch, config.options.chkRegExpSearch);
 		lastSearchText = txt.value;
-		};
-	var clickHandler = function(e)
-		{
+	};
+	var clickHandler = function(e) {
 		doSearch(searchInputField);
 		return false;
-		};
+	};
 	var keyHandler = function(e)
-		{
+	{
 		if (!e) e = window.event;
 		searchInputField = this;
-		switch(e.keyCode)
-			{
+		switch(e.keyCode) {
 			case 13:
 				if (e.ctrlKey && lastNewTiddlerButton && isResultOpen())
 					lastNewTiddlerButton.onclick.apply(lastNewTiddlerButton, [e]);
@@ -1465,44 +1460,35 @@ var myMacroSearchHandler = function(place, macroName, params, wikifier, paramStr
 					clearMessage();
 				}
 				break;
-			}
-		if (String.fromCharCode(e.keyCode) == this.accessKey || e.altKey)
-			{
+		}
+		if (String.fromCharCode(e.keyCode) == this.accessKey || e.altKey) {
 			reopenResultIfApplicable();
-			}
+		}
 
 		if(this.value.length < 3 && searchTimeout) clearTimeout(searchTimeout);
-		if(this.value.length > 2)
-			{
-		 	if (this.value != lastSearchText)
-		 		{
-				if (!config.options.chkUseYourSearch || config.options.chkSearchAsYouType)
-					{
+		if(this.value.length > 2) {
+		 	if (this.value != lastSearchText) {
+				if (!config.options.chkUseYourSearch || config.options.chkSearchAsYouType) {
 					if(searchTimeout)
 						clearTimeout(searchTimeout);
 					var txt = this;
 					searchTimeout = setTimeout(function() { doSearch(txt) }, 500);
 					}
-				}
-			else
-				{
-				if(searchTimeout)
-					clearTimeout(searchTimeout);
-				}
-			};
-		if (this.value.length == 0)
-			{
-			closeResult();
+			} else {
+				if(searchTimeout) clearTimeout(searchTimeout);
 			}
 		};
+		if (this.value.length == 0) {
+			closeResult();
+		}
+	};
 
 
-	var focusHandler = function(e)
-		{
+	var focusHandler = function(e) {
 		this.select();
 		clearMessage();
 		reopenResultIfApplicable();
-		};
+	};
 
 
 	var args = paramString.parseParams("list", null, true);
@@ -1511,28 +1497,24 @@ var myMacroSearchHandler = function(place, macroName, params, wikifier, paramStr
 	var sizeTextbox = getParam(args, "sizeTextbox", this.sizeTextbox);
 
 	var txt = createTiddlyElement(null, "input", null, "txtOptionInput searchField", null);
-	if(params[0])
-		txt.value = params[0];
+	if(params[0]) txt.value = params[0];
 	txt.onkeyup = keyHandler;
 	txt.onfocus = focusHandler;
 	txt.setAttribute("size", sizeTextbox);
 	txt.setAttribute("accessKey", this.accessKey);
 	txt.setAttribute("autocomplete", "off");
-	if(config.browser.isSafari)
-		{
+	if(config.browser.isSafari) {
 		txt.setAttribute("type", "search");
 		txt.setAttribute("results", "5");
-		}
+	}
 	else if (!config.browser.isIE)
 		txt.setAttribute("type", "text");
 
 	var btn = createTiddlyButton(null, this.label, this.prompt, clickHandler);
 	if (place) {
-		if (!buttonAtRight)
-			place.appendChild(btn);
+		if (!buttonAtRight) place.appendChild(btn);
 		place.appendChild(txt);
-		if (buttonAtRight)
-			place.appendChild(btn);
+		if (buttonAtRight) place.appendChild(btn);
 	}
 
 	searchInputField = txt;
