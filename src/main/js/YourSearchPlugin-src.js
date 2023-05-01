@@ -128,21 +128,19 @@ abego.copyOptions = function(options) {
 //#import abego.define-namespace
 // returns the number of occurances of s in the text
 abego.countStrings = function(text, s) {
-	if (!s)
-		return 0;
-
-	var len = s.length;
 	var n = 0;
+	if (!s) return n;
+
 	var lastIndex = 0;
 	while (true) {
 		var i = text.indexOf(s, lastIndex);
-		if (i < 0)
-			return n;
+		if (i < 0) return n;
 		n++;
-		lastIndex = i + len;
+		lastIndex = i + s.length;
 	}
-	return n;
-};// Returns the content of the first "braced" text {...}
+};
+
+// Returns the content of the first "braced" text {...}
 // Also takes care of nested braces
 //
 // Returns undefined when no braced text is found or it is not properly nested
