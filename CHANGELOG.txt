@@ -1,3 +1,13 @@
+* v2.2.0 (2023-05-06)
+** Several features, fixes and changes by Yakov Litvin. Thanks for contributing.
+*** feat: make shadows be formatted as code in TWC 2.9.x and others
+*** feat: increase z-index of .yourSearchResult not to interfere with CodeMirror and others
+*** fix: don't overwrite Array.prototype.forEach when present
+*** refactor: countStrings - omit unreachable return
+*** refactor: use yourSearchResultItemsID instead of repeasting the value
+*** codestyle: make indetation and blocks in myMacroSearchHandler and myStorySearch consistent with other code
+*** codestyle: apply eslint's space-before-blocks, block-spacing, semi-spacing, object-curly-spacing
+*** codestyle: apply eslint's no-trailing-spaces, comma-spacing, space-infix-ops, key-spacing
 * v2.1.6 (2012-04-19)
 ** Fix issue with IE8. Thanks to Roger Gallion for reporting and providing the fix.  (For details see: https://github.com/abego/YourSearchPlugin/issues/1)
 ** remove warnings
@@ -25,7 +35,7 @@
 *** Support JavaScript Expressions for filtering
 *** "new tiddler" feature (create tiddler based on search text)
 * v2.0.2 (2006-02-13)
-** Bugfix for Firefox 1.5.0.1 related to the "Show prefix" checkbox. Thanks to Ted Pavlic for reporting and to BramChen for fixing. 
+** Bugfix for Firefox 1.5.0.1 related to the "Show prefix" checkbox. Thanks to Ted Pavlic for reporting and to BramChen for fixing.
 ** Internal
 *** Make "JSLint" conform
 * v2.0.1 (2006-02-05)

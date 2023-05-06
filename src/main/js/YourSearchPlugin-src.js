@@ -1,6 +1,6 @@
 /***
 |''Name:''|YourSearchPlugin|
-|''Version:''|2.1.6 (2012-04-19)|
+|''Version:''|2.2.0 (2023-05-06)|
 |''Summary:''|Search your TiddlyWiki with advanced search features such as result lists, tiddler preview, result ranking, search filters, combined searches and many more.|
 |''Source:''|http://tiddlywiki.abego-software.de/#YourSearchPlugin|
 |''Twitter:''|[[@abego|https://twitter.com/#!/abego]]|
@@ -15,6 +15,16 @@ For more information see [[Help|YourSearch Help]].
 This plugin requires TiddlyWiki 2.1.
 Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearchPlugins supporting older versions of TiddlyWiki.
 !Revision history
+* v2.2.0 (2023-05-06)
+** Several features, fixes and changes by Yakov Litvin. Thanks for contributing.
+*** feat: make shadows be formatted as code in TWC 2.9.x and others
+*** feat: increase z-index of .yourSearchResult not to interfere with CodeMirror and others
+*** fix: don't overwrite Array.prototype.forEach when present
+*** refactor: countStrings - omit unreachable return
+*** refactor: use yourSearchResultItemsID instead of repeasting the value
+*** codestyle: make indetation and blocks in myMacroSearchHandler and myStorySearch consistent with other code
+*** codestyle: apply eslint's space-before-blocks, block-spacing, semi-spacing, object-curly-spacing
+*** codestyle: apply eslint's no-trailing-spaces, comma-spacing, space-infix-ops, key-spacing
 * v2.1.6 (2012-04-19)
 ** Fix issue with IE8. Thanks to Roger Gallion for reporting and providing the fix.  (For details see: https://github.com/abego/YourSearchPlugin/issues/1)
 ** remove warnings
@@ -72,10 +82,10 @@ Check the [[archive|http://tiddlywiki.abego-software.de/archive]] for ~YourSearc
 if (!version.extensions.YourSearchPlugin) {
 
 version.extensions.YourSearchPlugin = {
-	major: 2, minor: 1, revision: 6,
+	major: 2, minor: 2, revision: 0,
 	source: "http://tiddlywiki.abego-software.de/#YourSearchPlugin",
 	licence: "[[BSD open source license (abego Software)|http://www.abego-software.de/legal/apl-v10.html]]",
-	copyright: "Copyright (c) abego Software GmbH, 2005-2012 (www.abego-software.de)"
+	copyright: "Copyright (c) abego Software GmbH, 2005-2023 (www.abego-software.de)"
 };
 
 if (!window.abego) window.abego = {};
@@ -2020,7 +2030,7 @@ abego.YourSearch.onShowResult = function(useOldResult) {
 //}}}
 /***
 !Licence and Copyright
-Copyright (c) abego Software ~GmbH, 2005-2012 ([[www.abego-software.de|http://www.abego-software.de]])
+Copyright (c) abego Software ~GmbH, 2005-2023 ([[www.abego-software.de|http://www.abego-software.de]])
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
